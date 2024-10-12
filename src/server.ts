@@ -1,6 +1,7 @@
 import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
+import morgan from "morgan";
 import { pino } from "pino";
 
 import { openAPIRouter } from "@/api-docs/openAPIRouter";
@@ -10,7 +11,9 @@ import errorHandler from "@/common/middleware/errorHandler";
 import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
+import bodyParser from "body-parser";
 
+// Set up express server
 const logger = pino({ name: "server start" });
 const app: Express = express();
 
@@ -23,6 +26,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 app.use(helmet());
 app.use(rateLimiter);
+app.use(bodyParser.json());
+app.use(morgan("dev"));
 
 // Request logging
 app.use(requestLogger);
