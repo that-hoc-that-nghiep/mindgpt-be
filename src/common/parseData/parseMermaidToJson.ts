@@ -56,8 +56,7 @@ export const parseMermaidToJson = async (responseData:string) => {
  
   function assignLevels() {
     nodeLevels["A"] = 0; 
-
-   
+  
     edges.forEach((edge) => {
       const fromLevel = nodeLevels[edge.from];
       if (fromLevel !== undefined) {
