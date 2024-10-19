@@ -1,18 +1,18 @@
+import { EdgeMindmap, MindmapResponeAIHub, NodeMindmap } from "@/api/mindmap/mindmapRepository";
 import {  MindmapType } from "@/constant";
-import { Edge, MindmapRespone, Node } from "@/services";
 
-export const parseMermaidToJson = async (responseData:string) => {
+
+export const parseMermaidToJson = async (responseData:string,promptUser:string,orgId:string) => {
 
   const formattedMermaidData = responseData
-    .replace(/```/g, "") 
     .replace(/\\r\\n/g, "\n") 
     .replace(/\\n/g, "\n") 
     .replace(/\\"/g, '"') 
     .replace("mermaid\n", "") 
     .replace("graph TB\n", ""); 
 
-  const nodes: Node[] = [];
-  const edges: Edge[] = [];
+  const nodes: NodeMindmap[] = [];
+  const edges: EdgeMindmap[] = [];
   const nodeLevels: { [key: string]: number } = {};
 
   const lines = formattedMermaidData.trim().split("\n");
@@ -80,13 +80,15 @@ export const parseMermaidToJson = async (responseData:string) => {
   const prompt = title.replace(/[\u{1F600}-\u{1F6FF}]/gu, "").trim();
 
  
-  const jsonData: MindmapRespone = {
+  const jsonData:MindmapResponeAIHub= {
     title: title,
-    prompt: prompt,
+    prompt: promptUser,
     thumbnail: "",
     type: MindmapType.CREATIVE,
     nodes: nodes,
     edges: edges,
+    documentsId: [],
+    orgId: orgId,
     conversation: [],
   };
 
