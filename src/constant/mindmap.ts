@@ -8,7 +8,7 @@ export enum LLMModel {
   GPT_4o_mini = 'gpt-4o-mini',
 }
  
-export enum DocumentType{
+export enum DocumentTypeUpload{
     PDF = "pdf"
 }
 

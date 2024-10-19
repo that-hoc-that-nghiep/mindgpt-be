@@ -3,7 +3,7 @@ import express, { type Express } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import { pino } from "pino";
-
+import mongoose from "mongoose";
 import { openAPIRouter } from "@/api-docs/openAPIRouter";
 import { healthCheckRouter } from "@/api/healthCheck/healthCheckRouter";
 import { userRouter } from "@/api/user/userRouter";
@@ -28,6 +28,12 @@ app.use(helmet());
 app.use(rateLimiter);
 app.use(bodyParser.json());
 app.use(morgan("dev"));
+
+mongoose.Promise = Promise;
+mongoose
+  .connect(process.env.MONGO_DB_URI!)
+  .then(() => console.log("Connect MongoDB successful"))
+  .catch((err) => console.log("Error:", err));
 
 // Request logging
 app.use(requestLogger);
