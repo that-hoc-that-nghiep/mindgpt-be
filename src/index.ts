@@ -1,19 +1,37 @@
-import { env } from "@/common/utils/envConfig";
-import { app, logger } from "@/server";
+import express from "express";
+import { Request, Response, NextFunction, Router } from "express";
+import bodyParser from "body-parser";
+import morgan from "morgan";
+import cors from "cors";
+import httpErrors from "http-errors";
 
-const server = app.listen(env.PORT, () => {
-  const { NODE_ENV, HOST, PORT } = env;
-  logger.info(`Server (${NODE_ENV}) running on port http://${HOST}:${PORT}`);
+const app= express();
+
+// Middleware configuration
+app.use(express.json()); // Parse JSON payloads
+app.use(bodyParser.json()); // Body-parser middleware
+app.use(morgan("dev")); // Logger middleware
+app.use(cors());
+
+app.use(async (req, res, next) => {
+  next(httpErrors.BadRequest("Bad request"));
 });
 
-const onCloseSignal = () => {
-  logger.info("sigint received, shutting down");
-  server.close(() => {
-    logger.info("server closed");
-    process.exit();
-  });
-  setTimeout(() => process.exit(1), 10000).unref(); // Force shutdown after 10s
-};
+// Root route
+app.get("/", async (req: Request, res: Response) => {
+  res.status(200).send({ message: "Welcome to Mindmap" });
+});
 
-process.on("SIGINT", onCloseSignal);
-process.on("SIGTERM", onCloseSignal);
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  next(httpErrors.BadRequest("Bad request"));
+});
+
+// Error handler
+app.use((err: Error & { status: number }, req: Request, res: Response, next: NextFunction) => {
+  res.status(err.status || 500).send({
+    message: err.message,
+    stack: err.stack,
+  });
+});
+
+export default app;

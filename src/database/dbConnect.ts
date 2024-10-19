@@ -3,23 +3,27 @@ import mongoose from "mongoose";
 
 dotenv.config();
 
-const connectString: string = process.env.MONGODB_URI || "";
+const connectString: string =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/mindgpt";
 
 // Lấy tên database từ chuỗi kết nối
 const dbName: string = connectString.split("/").pop()?.split("?")[0] || "";
 
 class Database {
   private static instance: Database;
+  private static isConnected: boolean = false;
 
-  private constructor() {
-    this.connect();
-  }
+   connect(type = "mongodb"): void {
+    if (Database.isConnected) {
+      console.log("Already connected to the database.");
+      return;
+    }
 
-  private connect(type = "mongodb"): void {
     mongoose
       .connect(connectString, { maxPoolSize: 50 })
       .then(() => {
-        console.log("Connected Mongodb Success");
+        Database.isConnected = true;
+       // console.log("Connected Mongodb Success");
         console.log(`Connected to MongoDB Database: ${dbName}`);
       })
       .catch((err) => {
@@ -28,7 +32,9 @@ class Database {
   }
 
   public static getInstance(): Database {
+    console
     if (!Database.instance) {
+      //console.log("Creating new Database instance");
       Database.instance = new Database();
     }
     return Database.instance;

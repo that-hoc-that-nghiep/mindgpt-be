@@ -1,53 +1,17 @@
-import cors from "cors";
-import express, { type Express } from "express";
-import helmet from "helmet";
-import morgan from "morgan";
-import { pino } from "pino";
-import mongoose from "mongoose";
-import { openAPIRouter } from "@/api-docs/openAPIRouter";
-import { healthCheckRouter } from "@/api/healthCheck/healthCheckRouter";
-import { userRouter } from "@/api/user/userRouter";
-import errorHandler from "@/common/middleware/errorHandler";
-import rateLimiter from "@/common/middleware/rateLimiter";
-import requestLogger from "@/common/middleware/requestLogger";
-import { env } from "@/common/utils/envConfig";
-import bodyParser from "body-parser";
-import { mindmapRouter } from "./api/mindmap/mindmapRouter";
+import dotenv from 'dotenv';
+import app from './index';
+import db from './database/dbConnect';
 
-// Set up express server
-const logger = pino({ name: "server start" });
-const app: Express = express();
+// Load environment variables from .env file
+dotenv.config();
 
-// Set the application to trust the reverse proxy
-app.set("trust proxy", true);
+const PORT = Number(process.env.PORT) || 8080;
+const HOSTNAME = process.env.HOSTNAME || 'localhost';
 
-// Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors({ credentials: true }));
-app.use(helmet());
-app.use(rateLimiter);
-app.use(bodyParser.json());
-app.use(morgan("dev"));
+db.connect();
 
-mongoose.Promise = Promise;
-mongoose
-  .connect(process.env.MONGO_DB_URI!)
-  .then(() => console.log("Connect MongoDB successful"))
-  .catch((err) => console.log("Error:", err));
+// Create server and listen on the port
+app.listen(PORT, HOSTNAME, () => {
+    console.log(`Server running at: http://${HOSTNAME}:${PORT}`);
+});
 
-// Request logging
-app.use(requestLogger);
-
-// Routes
-app.use("/health-check", healthCheckRouter);
-app.use("/users", userRouter);
-app.use("/mindmap", mindmapRouter);
-
-// Swagger UI
-app.use(openAPIRouter);
-
-// Error handlers
-app.use(errorHandler());
-
-export { app, logger };
