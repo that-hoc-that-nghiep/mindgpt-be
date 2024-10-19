@@ -23,7 +23,6 @@ export const MindmapSchemaDoc = z.object({
 const ConversationSchema = new mongoose.Schema({
     role:{
         type: [String, "Role is String"],
-        enum: [Object.values(RoleChat), "Role is not valid. Role is: " + Object.values(RoleChat)]
     },
     content:{
         type: [String, "Content is String"],
@@ -117,7 +116,6 @@ const MindmapSchema = new mongoose.Schema({
     document: {
         type: {
             type: [String, "type is String"],
-            enum: [Object.values(DocumentTypeUpload), "type is not valid. type is: " + Object.values(DocumentTypeUpload)],
             default: DocumentTypeUpload.PDF
         },
         url: {
@@ -128,7 +126,6 @@ const MindmapSchema = new mongoose.Schema({
     type: {
         type: [String, "type is String"],
         required: [true, "type is required"],
-        enum: [Object.values(MindmapType), "type is not valid. type is: " + Object.values(MindmapType)]
     },
     nodes: {
         type: mongoose.Schema.Types.ObjectId,

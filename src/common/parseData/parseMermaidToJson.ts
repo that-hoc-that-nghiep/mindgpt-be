@@ -5,7 +5,6 @@ import {  MindmapType } from "@/constant";
 export const parseMermaidToJson = async (responseData:string,promptUser:string,orgId:string) => {
 
   const formattedMermaidData = responseData
-    .replace(/```/g, "") 
     .replace(/\\r\\n/g, "\n") 
     .replace(/\\n/g, "\n") 
     .replace(/\\"/g, '"') 

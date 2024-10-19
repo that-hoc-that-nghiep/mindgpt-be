@@ -8,9 +8,9 @@ export const mindmapRegistry = new OpenAPIRegistry();
 export const mindmapRouter = express.Router();
 
 mindmapRegistry.registerPath({
-    method: "get",
+    method: "post",
     path: "/mindmap/create",
     tags: ["Mindmap"],
     responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
 });
-mindmapRouter.get("/create", mindmapController.createMindmap)
+mindmapRouter.post("/create", mindmapController.createMindmap)

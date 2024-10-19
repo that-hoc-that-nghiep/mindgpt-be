@@ -1,4 +1,5 @@
 import { LLMModel, MindmapType } from "@/constant";
+import axios from 'axios';
 import {MindmapRepository, MindmapResponeAIHub } from "./mindmapRepository";
 import { logger } from "@/server";
 import { ServiceResponse } from "@/common/models/serviceResponse";
@@ -8,6 +9,7 @@ export interface MindmapRequestAiHub {
     llm: LLMModel,
     type: MindmapType,
     prompt: string,
+    documentsId: string[],
     depth: number,
     child: number
 }
@@ -19,20 +21,22 @@ export class MindmapService {
 
     async createMindmap(values: MindmapRequestAiHub,orgId:string) {
         try{
-            const responseAiHub = await fetch( process.env.API_AI_HUB! , {
-            method: 'POST', 
-            headers: {
-            'Content-Type': 'application/json',
-            },
-         body: JSON.stringify(values), // Replace with the appropriate body data
-        });
+            const responseAiHub = await axios.post(process.env.API_AI_HUB!, values, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+         if (responseAiHub.status !== 201) {
+            throw new Error(`Failed to fetch from AI Hub, status code: ${responseAiHub.status}`);
+      }
 
-    if (!responseAiHub.ok) {
-    return ServiceResponse.failure("Error creating new mindmap by api aihub", null, StatusCodes.INTERNAL_SERVER_ERROR);
-    }
-    const parsedData = parseMermaidToJson(await responseAiHub.text(), values.prompt, orgId);
-    const newMindmap = await this.mindmapRepository.createNewMinmap(await parsedData);
-    return ServiceResponse.success("Mindmap created", newMindmap, StatusCodes.OK);
+       const responseBody = responseAiHub.data.data;
+        console.log(responseBody)
+    const parsedData = parseMermaidToJson(responseBody, values.prompt, orgId);
+    
+    // update to databse
+    // const newMindmap = await this.mindmapRepository.createNewMinmap(await parsedData);
+    return ServiceResponse.success("Mindmap created",parsedData , StatusCodes.OK);
         }catch(error){
             const errorMessage = `Error creating new mindmap: ${(error as Error).message}`;
             logger.error(errorMessage);

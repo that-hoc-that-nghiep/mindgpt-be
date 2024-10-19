@@ -4,8 +4,8 @@ import { handleServiceResponse } from "@/common/utils/httpHandlers";
 
 export class MindmapController {
     public createMindmap: RequestHandler = async (req: Request, res: Response) => {
-        const {llm, type, prompt, depth, child, orgId} = req.body;
-        const serviceResponse = await mindmapService.createMindmap({llm, type, prompt, depth, child},orgId);
+        const {llm, type, prompt, depth, child,documentsId, orgId} = req.body;
+        const serviceResponse = await mindmapService.createMindmap({llm, type, prompt, depth, child,documentsId},orgId);
         return handleServiceResponse(serviceResponse, res);
     }
 }
