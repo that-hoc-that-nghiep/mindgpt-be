@@ -28,14 +28,10 @@ export interface Conversation{
     role: RoleChat,
     content: string
 }
-export interface MindmapRespone{
+export interface MindmapResponeAIHub{
     title: string,
     thumbnail: string,
     prompt: string,
-    document?:{
-    type: DocumentTypeUpload,
-    url: string
-    }
     type: MindmapType
     nodes: NodeMindmap[],
     edges: EdgeMindmap[],
@@ -44,7 +40,7 @@ export interface MindmapRespone{
     conversation: Conversation[]
 }
 export class MindmapRepository {
-    createNewMinmap = async (values: MindmapRespone) => {
+    createNewMinmap = async (values: MindmapResponeAIHub) => {
     const resNode= await new NodesModel(values.nodes).save()
     const nodeId = resNode._id;
     const resEdge= await new EdgesModel(values.edges).save()
@@ -58,7 +54,6 @@ export class MindmapRepository {
         type: values.type,
         nodes: nodeId,
         edges: edgeId,
-        document: values.document,
         documentsId: values.documentsId,
         orgId: values.orgId,
         conversation: conversationId
@@ -66,6 +61,3 @@ export class MindmapRepository {
     return resMindmap;
     }
 }
-
-
-export const mindmapRepository = new MindmapRepository;
