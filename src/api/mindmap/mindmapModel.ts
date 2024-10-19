@@ -1,5 +1,25 @@
 import { DocumentTypeUpload, MindmapType, RoleChat } from "@/constant"
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import mongoose from "mongoose"
+import { z } from "zod";
+
+extendZodWithOpenApi(z);
+export type IMindmap = z.infer<typeof MindmapSchemaDoc>;
+export const MindmapSchemaDoc = z.object({
+   title: z.string(),
+    thumbnail: z.string(),
+    prompt: z.string(),
+    document: z.object({
+        type: z.string(),
+        url: z.string(),
+    }) ,
+    type: z.string(),
+    nodes: z.string(),
+    edges: z.string(),
+    documentIds:z.string().array(),
+    orgId:z.string(),
+    conversation: z.string().array(),
+})
 const ConversationSchema = new mongoose.Schema({
     role:{
         type: [String, "Role is String"],

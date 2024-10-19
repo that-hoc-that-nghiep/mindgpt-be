@@ -12,6 +12,7 @@ import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
 import bodyParser from "body-parser";
+import { mindmapRouter } from "./api/mindmap/mindmapRouter";
 
 // Set up express server
 const logger = pino({ name: "server start" });
@@ -41,7 +42,7 @@ app.use(requestLogger);
 // Routes
 app.use("/health-check", healthCheckRouter);
 app.use("/users", userRouter);
-
+app.use("/mindmap", mindmapRouter);
 
 // Swagger UI
 app.use(openAPIRouter);
