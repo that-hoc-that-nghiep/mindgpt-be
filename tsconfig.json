@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es2016",
-    "module": "commonjs",
-    "rootDir": "./src",
+    "target": "ESNext",
+    "module": "CommonJS",
+    //"rootDir": "./src",
+    "types": ["node"],
+    "moduleResolution": "node",
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -14,9 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }  
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
-
 }
