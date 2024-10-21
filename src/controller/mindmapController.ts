@@ -54,6 +54,39 @@ export class MindmapController {
       });
     }
   };
+
+  getMindmaps: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const orgId = req.params.orgId as string;
+      const { mindmaps, total, totalPages, currentPage } = await mindmapService.getMindmapsWithPagination(page, orgId);
+
+      res.status(200).json({
+        mindmaps,
+        total,       // Tổng số mindmap
+        totalPages,  // Tổng số trang
+        currentPage, // Trang hiện tại
+      });
+    } catch (error) {
+      res.status(500).json({ message: error });
+    }
+  };
+
+  deleteMindmaps: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const mindmapId = req.body.mindmapId;
+      const response = await mindmapService.deleteMindmap(mindmapId);
+      res.status(200).json(response);
+    } catch (error) {
+      res.status(500).json({message: error});
+    }
+  }
 }
 
 export const mindmapController = new MindmapController();
