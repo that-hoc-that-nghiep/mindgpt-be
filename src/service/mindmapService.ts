@@ -101,7 +101,7 @@ export class MindmapService {
         const responseBody = responseAiHub.data;
         if (responseBody && responseBody.hasOwnProperty("data")) {
           const responseBodyData = responseBody.data;
-          const responseDocumentsId: string[] = responseAiHub.data.documentsId;
+          const responseDocumentsId = responseBody.documentsId;
           const parsedData = parseMermaidToJson(
             responseBodyData,
             requestAIHubFile.prompt,

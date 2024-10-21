@@ -138,12 +138,10 @@ const MindmapSchema = new mongoose.Schema({
       ref: "Edges",
     },
   ],
-  documentIds: [
-    {
-      type: String,
-      default: [],
-    },
-  ],
+  documentsId: {
+    type: [String],
+    default: [],
+  },
   orgId: {
     type: String,
     default: "",
