@@ -1,10 +1,18 @@
-import { EdgeMindmap, MindmapResponeAIHub, NodeMindmap } from "@/respository/mindmapRepository";
+import {
+  EdgeMindmap,
+  MindmapResponeAIHub,
+  NodeMindmap,
+} from "@/respository/mindmapRepository";
 import { MindmapType } from "@/constant";
 
-
-export const parseMermaidToJson = async (responseData: string, promptUser: string, orgId: string) => {
-
+export const parseMermaidToJson = async (
+  responseData: string,
+  promptUser: string,
+  orgId: string
+) => {
   const formattedMermaidData = responseData
+    .replace(/\s*(?=\[)/g, "") 
+    .replace(/(?<=\])\s*/g, "") 
     .replace(/\\r\\n/g, "\n")
     .replace(/\\n/g, "\n")
     .replace(/\\"/g, '"')
@@ -17,15 +25,12 @@ export const parseMermaidToJson = async (responseData: string, promptUser: strin
 
   const lines = formattedMermaidData.trim().split("\n");
 
-
   lines.forEach((line: string) => {
-
     const nodeMatch = line.match(/(\w+)\["([^"]+)"\]/);
     if (nodeMatch) {
       const id = nodeMatch[1];
 
       const label = nodeMatch[2].replace(/[\u{1F600}-\u{1F6FF}]/gu, "").trim();
-
 
       nodes.push({
         id: id,
@@ -39,7 +44,6 @@ export const parseMermaidToJson = async (responseData: string, promptUser: strin
       });
     }
 
-
     const edgeMatch = line.match(/(\w+)\s*-->\s*(\w+)/);
     if (edgeMatch) {
       const from = edgeMatch[1];
@@ -52,7 +56,6 @@ export const parseMermaidToJson = async (responseData: string, promptUser: strin
       });
     }
   });
-
 
   function assignLevels() {
     nodeLevels["A"] = 0;
@@ -70,15 +73,12 @@ export const parseMermaidToJson = async (responseData: string, promptUser: strin
 
   assignLevels();
 
-
   nodes.forEach((node) => {
     node.level = nodeLevels[node.id] >= 0 ? nodeLevels[node.id] : 0;
   });
 
-
   const title = nodes[0]?.label || "";
   const prompt = title.replace(/[\u{1F600}-\u{1F6FF}]/gu, "").trim();
-
 
   const jsonData: MindmapResponeAIHub = {
     title: title,

@@ -42,7 +42,7 @@ export class MindmapService {
     }
     const responseBody = responseAiHub.data.data;
     const parsedData = parseMermaidToJson(responseBody, values.prompt, orgId);
-    //Write code to save to mongoDB
+    
 
     return parsedData;
   }
