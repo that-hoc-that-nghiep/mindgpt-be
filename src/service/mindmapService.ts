@@ -63,7 +63,7 @@ export class MindmapService {
         }
       } while (count < countLimit);
     } catch (error) {
-      const errorMessage = `Error creating new mindmap by upload file: ${
+      const errorMessage = `Error creating new mindmap: ${
         (error as Error).message
       }`;
       console.log(errorMessage);
