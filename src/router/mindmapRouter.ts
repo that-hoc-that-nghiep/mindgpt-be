@@ -4,6 +4,7 @@ import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import z from "zod";
 import { MindmapSchemaDoc } from "@/model/mindmapModel";
+import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
 const bodyCreateExample = {
   llm: "gpt-4o",
   type: "creative",
@@ -35,3 +36,23 @@ mindmapRegistry.registerPath({
   responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
 });
 mindmapRouter.post("/create", mindmapController.createMindmap);
+
+mindmapRegistry.registerPath({
+  method: "post",
+  path: "/mindmap/upload",
+  tags: ["Mindmap"],
+  requestBody: {
+    content: {
+      "application/pdf": {
+        example: formDataExample,
+      },
+    },
+  },
+  responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
+});
+
+mindmapRouter.post(
+  "/upload",
+  uploadFileMiddleware("free").single("file"),
+  mindmapController.createMindmapByUploadFile
+);

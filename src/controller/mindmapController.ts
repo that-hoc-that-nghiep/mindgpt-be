@@ -27,6 +27,33 @@ export class MindmapController {
       });
     }
   };
+  createMindmapByUploadFile: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const file: any = req.file;
+      const orgId: string = "f69d607f-1404-4e70-af7c-ec6447854a7e";
+      const serviceResponse = await mindmapService.createNewMindmapByUploadFile(
+        file,
+        orgId
+      );
+      res.status(statusCode.OK).json({
+        status: statusCode.OK,
+        message: "Create mindmap by upload file successfully",
+        data: serviceResponse,
+      });
+    } catch (error) {
+      const errorMessage = `Error creating new mindmap by upload file: ${
+        (error as Error).message
+      }`;
+      console.log(errorMessage);
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+        status: statusCode.INTERNAL_SERVER_ERROR,
+        message: errorMessage,
+      });
+    }
+  };
 }
 
 export const mindmapController = new MindmapController();

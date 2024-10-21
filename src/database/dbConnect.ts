@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 dotenv.config();
 
 const connectString: string =
-  process.env.MONGO_DB_URI_LOCAL || "mongodb://localhost:27017/";
+  process.env.MONGO_DB_URI || "mongodb://localhost:27017/";
 
 // Lấy tên database từ chuỗi kết nối
 const dbName: string = connectString.split("/").pop()?.split("?")[0] || "";
