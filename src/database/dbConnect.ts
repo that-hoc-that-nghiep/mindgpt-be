@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 dotenv.config();
 
 const connectString: string =
-  process.env.MONGO_DB_URI || "mongodb://localhost:27017/";
+  process.env.MONGO_DB_URI_LOCAL || "mongodb://localhost:27017/";
 
 // Lấy tên database từ chuỗi kết nối
 const dbName: string = connectString.split("/").pop()?.split("?")[0] || "";
@@ -13,7 +13,7 @@ class Database {
   private static instance: Database;
   private static isConnected: boolean = false;
 
-   connect(type = "mongodb"): void {
+  connect(type = "mongodb"): void {
     if (Database.isConnected) {
       console.log("Already connected to the database.");
       return;
@@ -23,7 +23,7 @@ class Database {
       .connect(connectString, { maxPoolSize: 50 })
       .then(() => {
         Database.isConnected = true;
-       // console.log("Connected Mongodb Success");
+        // console.log("Connected Mongodb Success");
         console.log(`Connected to MongoDB Database: ${dbName}`);
       })
       .catch((err) => {
@@ -32,7 +32,7 @@ class Database {
   }
 
   public static getInstance(): Database {
-    console
+    console;
     if (!Database.instance) {
       //console.log("Creating new Database instance");
       Database.instance = new Database();

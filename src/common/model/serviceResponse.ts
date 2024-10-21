@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-
+import { z } from "zod";
 export class ServiceResponse<T = null> {
   readonly status: number;
   readonly message: string;
@@ -23,3 +23,9 @@ export class ServiceResponse<T = null> {
     return new ServiceResponse(message, data, statusCode);
   }
 }
+export const ServiceResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    status: z.number(),
+    message: z.string(),
+    responseObject: dataSchema.optional(),
+  });

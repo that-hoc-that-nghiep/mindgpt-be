@@ -5,6 +5,7 @@ import cors from "cors";
 import httpErrors from "http-errors";
 import { mindmapRouter } from "@/router/mindmapRouter";
 import dotenv from "dotenv";
+import { openAPIRouter } from "./api-docs/openAPIRouter";
 dotenv.config();
 const app = express();
 
@@ -23,6 +24,8 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
+
+app.use(openAPIRouter);
 
 // Root route
 app.get("/", async (req: Request, res: Response) => {
