@@ -39,6 +39,7 @@ export interface MindmapResponeAIHub {
   nodes: NodeMindmap[];
   edges: EdgeMindmap[];
   documentsId: string[];
+  document: {},
   orgId: string;
   conversation: Conversation[];
 }

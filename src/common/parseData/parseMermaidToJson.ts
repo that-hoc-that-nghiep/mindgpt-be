@@ -8,11 +8,14 @@ import { MindmapType } from "@/constant";
 export const parseMermaidToJson = async (
   responseData: string,
   promptUser: string,
-  orgId: string
+  type: MindmapType,
+  documentsId: string[],
+  orgId: string,
+  document?: {}
 ) => {
   const formattedMermaidData = responseData
-    .replace(/\s*(?=\[)/g, "") 
-    .replace(/(?<=\])\s*/g, "") 
+    .replace(/\s*(?=\[)/g, "")
+    .replace(/(?<=\])\s*/g, "")
     .replace(/\\r\\n/g, "\n")
     .replace(/\\n/g, "\n")
     .replace(/\\"/g, '"')
@@ -84,10 +87,11 @@ export const parseMermaidToJson = async (
     title: title,
     prompt: promptUser,
     thumbnail: "",
-    type: MindmapType.CREATIVE,
+    type: type,
     nodes: nodes,
     edges: edges,
-    documentsId: [],
+    documentsId: documentsId || [],
+    document: document || {},
     orgId: orgId,
     conversation: [],
   };

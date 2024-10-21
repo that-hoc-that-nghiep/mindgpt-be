@@ -1,11 +1,11 @@
 import express from "express";
-import { Request, Response, NextFunction, Router } from "express";
-import bodyParser from "body-parser";
+import { Request, Response, NextFunction } from "express";
 import morgan from "morgan";
 import cors from "cors";
 import httpErrors from "http-errors";
 import { mindmapRouter } from "@/router/mindmapRouter";
-
+import dotenv from "dotenv";
+dotenv.config();
 const app = express();
 
 //Set trust proxy

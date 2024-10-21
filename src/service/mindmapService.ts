@@ -5,6 +5,7 @@ import { ServiceResponse } from "@/common/model/serviceResponse";
 import { parseMermaidToJson } from "@/common/parseData/parseMermaidToJson";
 import { createClient } from "@supabase/supabase-js";
 import { StatusCodes } from "http-status-codes";
+import config from "config";
 export interface MindmapRequestAiHub {
   llm: LLMModel;
   type: MindmapType;
@@ -22,15 +23,15 @@ export class MindmapService {
   }
   async createMindmap(values: MindmapRequestAiHub) {
     let responseAiHub = null;
-    const orgId = values.orgId;
+    const baseUrl = config.API_AI_HUB;
+    const url = `${baseUrl}/mindmap/create`;
     try {
-      responseAiHub = await axios.post(process.env.API_AI_HUB!, values, {
+      responseAiHub = await axios.post(url, values, {
         headers: {
           "Content-Type": "application/json; charset=utf-8",
         },
-        timeout: 60000,
         validateStatus: function (status: number) {
-          return status >= 200 && status < 300; // default
+          return status >= 200 && status < 300;
         },
       });
     } catch (error: any) {
@@ -40,11 +41,19 @@ export class MindmapService {
     if (!responseAiHub) {
       throw new Error("Failed to get response from AI Hub");
     }
-    const responseBody = responseAiHub.data.data;
-    const parsedData = parseMermaidToJson(responseBody, values.prompt, orgId);
-    
-
-    return parsedData;
+    const responseBody = responseAiHub.data;
+    const responseBodyData = responseAiHub.data.data;
+    const parsedData = parseMermaidToJson(
+      responseBodyData,
+      values.prompt,
+      values.type,
+      values.documentsId,
+      values.orgId
+    );
+    const newMindmap = await this.mindmapRepository.createNewMindmap(
+      await parsedData
+    );
+    return newMindmap;
   }
 }
 
