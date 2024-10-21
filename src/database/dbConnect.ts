@@ -5,9 +5,12 @@ dotenv.config();
 
 const connectString: string =
   process.env.MONGO_DB_URI || "mongodb://localhost:27017/";
+console.warn("Connect String:", process.env.MONGO_DB_URI);
+
 
 // Lấy tên database từ chuỗi kết nối
 const dbName: string = connectString.split("/").pop()?.split("?")[0] || "";
+console.warn("dbName:", dbName);
 
 class Database {
   private static instance: Database;
