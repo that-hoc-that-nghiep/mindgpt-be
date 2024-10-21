@@ -17,9 +17,8 @@ export class MindmapController {
         data: serviceResponse,
       });
     } catch (error) {
-      const errorMessage = `Error creating new mindmap: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error creating new mindmap: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       res.status(statusCode.INTERNAL_SERVER_ERROR).json({
         status: statusCode.INTERNAL_SERVER_ERROR,
@@ -44,9 +43,8 @@ export class MindmapController {
         data: serviceResponse,
       });
     } catch (error) {
-      const errorMessage = `Error creating new mindmap by upload file: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error creating new mindmap by upload file: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       res.status(statusCode.INTERNAL_SERVER_ERROR).json({
         status: statusCode.INTERNAL_SERVER_ERROR,
@@ -54,6 +52,19 @@ export class MindmapController {
       });
     }
   };
+
+  getMindmapById: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    try {
+      const mindmapId = req.params.mindmapId;
+      const serviceResponse = await mindmapService.getMindmapById(mindmapId);
+      res.status(200).json({ message: "Get mindmap by id successfully", data: serviceResponse });
+    } catch (error) {
+      res.status(500).json({ message: error });
+    }
+  }
 
   getMindmaps: RequestHandler = async (
     req: Request,
@@ -66,9 +77,9 @@ export class MindmapController {
 
       res.status(200).json({
         mindmaps,
-        total,       // Tổng số mindmap
-        totalPages,  // Tổng số trang
-        currentPage, // Trang hiện tại
+        total,
+        totalPages,
+        currentPage,
       });
     } catch (error) {
       res.status(500).json({ message: error });
@@ -80,11 +91,11 @@ export class MindmapController {
     res: Response
   ): Promise<void> => {
     try {
-      const mindmapId = req.body.mindmapId;
+      const mindmapId = req.params.mindmapId;
       const response = await mindmapService.deleteMindmap(mindmapId);
-      res.status(200).json(response);
+      res.status(200).json({ message: "Delete mindmap successfully" });
     } catch (error) {
-      res.status(500).json({message: error});
+      res.status(500).json({ message: error });
     }
   }
 }

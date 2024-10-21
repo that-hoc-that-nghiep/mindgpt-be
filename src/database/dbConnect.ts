@@ -8,9 +8,8 @@ const connectString: string =
 console.warn("Connect String:", process.env.MONGO_DB_URI);
 
 
-// Lấy tên database từ chuỗi kết nối
+// Take database name from connectString
 const dbName: string = connectString.split("/").pop()?.split("?")[0] || "";
-console.warn("dbName:", dbName);
 
 class Database {
   private static instance: Database;
@@ -26,7 +25,6 @@ class Database {
       .connect(connectString, { maxPoolSize: 50 })
       .then(() => {
         Database.isConnected = true;
-        // console.log("Connected Mongodb Success");
         console.log(`Connected to MongoDB Database: ${dbName}`);
       })
       .catch((err) => {
@@ -37,7 +35,6 @@ class Database {
   public static getInstance(): Database {
     console;
     if (!Database.instance) {
-      //console.log("Creating new Database instance");
       Database.instance = new Database();
     }
     return Database.instance;

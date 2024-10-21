@@ -8,22 +8,22 @@ import { StatusCodes } from "http-status-codes";
 import config from "config";
 import * as fs from "fs/promises";
 export interface MindmapRequestAiHub {
-    llm: LLMModel;
-    type: MindmapType;
-    prompt: string;
-    documentsId: string[];
-    depth: number;
-    child: number;
-    orgId: string;
+  llm: LLMModel;
+  type: MindmapType;
+  prompt: string;
+  documentsId: string[];
+  depth: number;
+  child: number;
+  orgId: string;
 }
 const supabase = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_KEY!
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_KEY!
 );
 const baseUrl = config.API_AI_HUB;
 const url = `${baseUrl}/mindmap/create`;
 export class MindmapService {
-    private mindmapRepository: MindmapRepository;
+  private mindmapRepository: MindmapRepository;
   constructor(repository: MindmapRepository = new MindmapRepository()) {
     this.mindmapRepository = repository;
   }
@@ -63,9 +63,8 @@ export class MindmapService {
         }
       } while (count < countLimit);
     } catch (error) {
-      const errorMessage = `Error creating new mindmap: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error creating new mindmap: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -128,33 +127,39 @@ export class MindmapService {
         }
       } while (count < countLimit);
     } catch (error) {
-      const errorMessage = `Error creating new mindmap by upload file: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error creating new mindmap by upload file: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
   }
 
-    async getMindmapsWithPagination(page: number, orgId: string): Promise<{ mindmaps: any[], total: number, totalPages: number, currentPage: number }> {
-        const limit = 5; // 5 maps 1 trang
-        if (page < 1) page = 1;
-        const skip = (page - 1) * limit;
-
-        const { mindmaps, total } = await this.mindmapRepository.getMindmapsByOrgId(skip, limit, orgId);
-
-        return {
-            mindmaps,
-            total,
-            totalPages: Math.ceil(total / limit),
-            currentPage: page,
-        };
+  async getMindmapById(mindmapId: string): Promise<{ mindmap: any }> {
+    const mindmap = await this.mindmapRepository.getMindmapById(mindmapId);
+    if (mindmap) {
+      return { mindmap };
+    } else {
+      throw new Error(`Mindmap with ID ${mindmapId} not found.`);
     }
+  }
 
-    async deleteMindmap(mindmapId: string) {
-        const result = await this.mindmapRepository.deleteMindmap(mindmapId);
-        return result;
-    }
+  async getMindmapsWithPagination(page: number, orgId: string): Promise<{ mindmaps: any[], total: number, totalPages: number, currentPage: number }> {
+    const limit = 5; // 5 maps per page
+    if (page < 1) page = 1;
+    const skip = (page - 1) * limit;
+    const { mindmaps, total } = await this.mindmapRepository.getMindmapsByOrgId(skip, limit, orgId);
+    return {
+      mindmaps,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    };
+  }
+
+  async deleteMindmap(mindmapId: string) {
+    const result = await this.mindmapRepository.deleteMindmapById(mindmapId);
+    return result;
+  }
 }
 
 export const mindmapService = new MindmapService();

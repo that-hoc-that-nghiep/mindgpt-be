@@ -93,9 +93,25 @@ export class MindmapRepository {
     return populatedMindmap;
   };
 
-  getMindmapsWithPagination = async (skip: number, limit: number) => {
-    console.warn(skip + " - " + limit);
+  getMindmapById = async (mindmapId: string) => {
+    const mindmap = await MindmapModel.findById(mindmapId)
+      .populate({
+        path: "nodes",
+        select: "-_id -__v",
+      })
+      .populate({
+        path: "edges",
+        select: "-_id -__v",
+      })
+      .populate({
+        path: "conversation",
+        select: "-_id -__v",
+      })
+      .exec();
+    return mindmap;
+  }
 
+  getMindmapsWithPagination = async (skip: number, limit: number) => {
     const mindmaps = await MindmapModel.find({})
       .skip(skip)
       .limit(limit)
@@ -113,7 +129,7 @@ export class MindmapRepository {
       })
       .exec();
 
-    // Đếm tổng số mindmaps
+    // Count total mindmaps
     const total = await MindmapModel.countDocuments();
 
     return { mindmaps, total };
@@ -137,13 +153,12 @@ export class MindmapRepository {
       })
       .exec();
 
-    // Đếm tổng số mindmaps
-    const total = await MindmapModel.countDocuments();
-
+    // Count total mindmaps of orgs
+    const total = await MindmapModel.countDocuments({ orgId: orgId });
     return { mindmaps, total };
   };
 
-  deleteMindmap = async (mindmapId: string) => {
+  deleteMindmapById = async (mindmapId: string) => {
     // Attempt to delete the mindmap with the given ID
     const result = await MindmapModel.deleteOne({ _id: mindmapId });
 

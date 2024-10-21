@@ -57,6 +57,8 @@ mindmapRouter.post(
     mindmapController.createMindmapByUploadFile
 );
 
+mindmapRouter.get("/:mindmapId", mindmapController.getMindmapById);
+
 mindmapRouter.get("/:orgId/list-mindmap", mindmapController.getMindmaps);
 
-mindmapRouter.delete("/delete", mindmapController.deleteMindmaps);
+mindmapRouter.delete("/delete/:mindmapId", mindmapController.deleteMindmaps);
