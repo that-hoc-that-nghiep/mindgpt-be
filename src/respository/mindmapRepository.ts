@@ -39,6 +39,7 @@ export interface MindmapResponeAIHub {
   nodes: NodeMindmap[];
   edges: EdgeMindmap[];
   documentsId: string[];
+  document: {};
   orgId: string;
   conversation: Conversation[];
 }
@@ -68,11 +69,12 @@ export class MindmapRepository {
       type: values.type,
       nodes: savedNodes,
       edges: savedEdges,
+      document: values.document,
       documentsId: values.documentsId,
       orgId: values.orgId,
       conversation: conversationId,
     }).save();
-    
+
     const populatedMindmap = await MindmapModel.findById(resMindmap._id)
       .select("-_id -__v")
       .populate({
