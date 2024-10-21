@@ -14,14 +14,15 @@ app.set("trust proxy", true);
 // Middleware configuration
 app.use(express.json()); // Parse JSON payloads
 app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.json()); // Body-parser middleware
 app.use(morgan("dev")); // Logger middleware
 
-app.use(cors({
-  origin: '*',
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Custom-Header'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-}));
+app.use(
+  cors({
+    origin: "*",
+    allowedHeaders: ["Content-Type", "Authorization", "X-Custom-Header"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 
 // Root route
 app.get("/", async (req: Request, res: Response) => {
