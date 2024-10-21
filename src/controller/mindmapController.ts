@@ -32,7 +32,7 @@ export class MindmapController {
     res: Response
   ): Promise<void> => {
     try {
-      const file: any = req.file;
+      const file = req.file;
       const orgId: string = "f69d607f-1404-4e70-af7c-ec6447854a7e";
       const serviceResponse = await mindmapService.createNewMindmapByUploadFile(
         file,

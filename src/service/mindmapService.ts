@@ -32,34 +32,43 @@ export class MindmapService {
     const baseUrl = config.API_AI_HUB;
     const url = `${baseUrl}/mindmap/create`;
     try {
-      responseAiHub = await axios.post(url, values, {
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-        validateStatus: function (status: number) {
-          return status >= 200 && status < 300;
-        },
-      });
-    } catch (error: any) {
-      console.log("Error", error.message);
-    }
+      const countLimit = 3;
+      let count = 1;
+      do {
+        responseAiHub = await axios.post(url, values, {
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          validateStatus: function (status: number) {
+            return status >= 200 && status < 300;
+          },
+        });
 
-    if (!responseAiHub) {
-      throw new Error("Failed to get response from AI Hub");
+        const responseBody = responseAiHub.data;
+        if (responseBody && responseBody.hasOwnProperty("data")) {
+          const responseBodyData = responseAiHub.data.data;
+          const parsedData = parseMermaidToJson(
+            responseBodyData,
+            values.prompt,
+            values.type,
+            values.documentsId,
+            values.orgId
+          );
+          const newMindmap = await this.mindmapRepository.createNewMindmap(
+            await parsedData
+          );
+          return newMindmap;
+        } else {
+          count++;
+        }
+      } while (count < countLimit);
+    } catch (error) {
+      const errorMessage = `Error creating new mindmap by upload file: ${
+        (error as Error).message
+      }`;
+      console.log(errorMessage);
+      throw new Error(errorMessage);
     }
-    const responseBody = responseAiHub.data;
-    const responseBodyData = responseAiHub.data.data;
-    const parsedData = parseMermaidToJson(
-      responseBodyData,
-      values.prompt,
-      values.type,
-      values.documentsId,
-      values.orgId
-    );
-    const newMindmap = await this.mindmapRepository.createNewMindmap(
-      await parsedData
-    );
-    return newMindmap;
   }
 
   async createNewMindmapByUploadFile(file: any, orgId: string) {
