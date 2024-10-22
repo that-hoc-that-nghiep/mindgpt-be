@@ -96,6 +96,16 @@ export function validateMindmapRequest(req: Request) {
     if (typeof docUrl !== "string" || docUrl.trim() === "") {
       throw new Error("Invalid value for docUrl. Expected a non-empty string");
     }
+
+    if (docType === "web") {
+      // Kiểm tra đuôi .html hoặc .htm
+      const htmlRegex = /^https?:\/\/.*\.(html|htm)$/i;
+      if (!htmlRegex.test(docUrl)) {
+        throw new Error(
+          "Invalid value for docUrl. Expected a .html or .htm link. The suggestion is a link to the articles."
+        );
+      }
+    }
     try {
       const documentsIdParseArray = JSON.parse(documentsId);
       if (
