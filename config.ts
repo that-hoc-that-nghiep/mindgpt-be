@@ -9,6 +9,7 @@ dotenv.config({ path: path.resolve(__dirname, "./.env") });
 // as someone could skip these varibales or not setup a .env file at all
 
 interface ENV {
+  API_AUTH: string | undefined;
   API_MINGPT_BE: string | undefined;
   API_AI_HUB: string | undefined;
   MONGO_DB_URI: string | undefined;
@@ -17,6 +18,7 @@ interface ENV {
 }
 
 interface Config {
+  API_AUTH: string;
   API_MINGPT_BE: string;
   API_AI_HUB: string;
   MONGO_DB_URI: string;
@@ -28,6 +30,7 @@ interface Config {
 
 const getConfig = (): ENV => {
   return {
+    API_AUTH: process.env.API_AUTH,
     API_MINGPT_BE: process.env.API_MINGPT_BE,
     API_AI_HUB: process.env.API_AI_HUB,
     MONGO_DB_URI: process.env.MONGO_DB_URI,

@@ -1,61 +1,160 @@
-import express from "express"
-import { mindmapController } from "@/controller/mindmapController"
-import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi"
-import { createApiResponse } from "@/api-docs/openAPIResponseBuilders"
-import z from "zod"
-import { MindmapSchemaDoc } from "@/model/mindmapModel"
-import { uploadFileMiddleware } from "@/common/uploadFileHander/upload"
-const bodyCreateExample = {
-    type: "creative",
-    prompt: "bão yagi 2024",
-    documentsId: [],
-    document: {},
-    depth: 4,
-    child: 3,
-    orgId: "f69d607f-1404-4e70-af7c-ec6447854a7e",
-}
-const formDataExample = {
-    key: "file",
-    value: "",
-}
-export const mindmapRouter = express.Router()
-export const mindmapRegistry = new OpenAPIRegistry()
-mindmapRegistry.registerPath({
-    method: "post",
-    path: "/mindmap/create",
-    tags: ["Mindmap"],
-    requestBody: {
-        content: {
-            "application/json": {
-                example: bodyCreateExample,
-            },
-        },
-        required: true,
-    },
-    responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
-})
-mindmapRouter.post("/create", mindmapController.createMindmap)
+import express from "express";
+import { mindmapController } from "@/controller/mindmapController";
+import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
+import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
+import z from "zod";
+import { MindmapSchemaDoc } from "@/model/mindmapModel";
+import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
+import { create } from "domain";
 
+const bodyCreateExampleByCreative = {
+  type: "creative",
+  prompt: "bão yagi 2024",
+  documentsId: [],
+  depth: 3,
+  child: 3,
+  orgId: "f69d607f-1404-4e70-af7c-ec6447854a7e",
+};
+const bodyCreateExampleByUploadFilePDF = {
+  type: "summary",
+  filePdf: "test.pdf",
+  depth: 3,
+  child: 3,
+  orgId: "f69d607f-1404-4e70-af7c-ec6447854a7e",
+};
+const bodyCreateExampleBySummaryPDF = {
+  type: "summary",
+  docType: "pdf",
+  docUrl:
+    "https://znacytaqncsguiyhgtgj.supabase.co/storage/v1/object/public/document/Resume_quydx.pdf",
+  documentsId: [],
+  depth: 3,
+  child: 3,
+  orgId: "f69d607f-1404-4e70-af7c-ec6447854a7e",
+};
+const bodyCreateExampleBySummaryWEB = {
+  type: "summary",
+  docType: "web",
+  docUrl:
+    "https://dantri.com.vn/giao-duc/nam-sinh-vien-it-gianh-quan-quan-lap-trinh-duoc-dac-cach-tuyen-dung-du-chua-tot-nghiep-20240729151250529.htm",
+  documentsId: [],
+  depth: 3,
+  child: 3,
+  orgId: "f69d607f-1404-4e70-af7c-ec6447854a7e",
+};
+const bodyCreateExampleBySummaryYoutube = {
+  type: "summary",
+  docType: "youtube",
+  docUrl: "",
+  documentsId: [],
+  depth: 3,
+  child: 3,
+  orgId: "f69d607f-1404-4e70-af7c-ec6447854a7e",
+};
+export const mindmapRouter = express.Router();
+export const mindmapRegistry = new OpenAPIRegistry();
 mindmapRegistry.registerPath({
-    method: "post",
-    path: "/mindmap/upload",
-    tags: ["Mindmap"],
-    requestBody: {
-        content: {
-            "application/pdf": {
-                example: formDataExample,
+  method: "post",
+  path: "/mindmap/create",
+  tags: ["Mindmap"],
+  requestBody: {
+    content: {
+      "multipart/form-data": {
+        schema: {
+          type: "object",
+          properties: {
+            llm: {
+              type: "string",
+              description:
+                "The LLM model to be used. Two options: gpt-4o and gpt-4o-mini. Should choose gpt-4o by default",
+              example: "gpt-4o",
             },
+            type: {
+              type: "string",
+              description: "Type of the Mindmap. Options: creative, summary",
+              example: "creative",
+            },
+            depth: {
+              type: "integer",
+              description: "Depth of the Mindmap. greater than 0",
+              example: 3,
+            },
+            child: {
+              type: "integer",
+              description: "Number of child nodes. greater than 0",
+              example: 3,
+            },
+            orgId: {
+              type: "string",
+              description: "Organization ID",
+              example: "org_123",
+            },
+            prompt: {
+              type: "string",
+              description: "Prompt for generating the Mindmap",
+              example: "bao yagi 2024",
+            },
+            docType: {
+              type: "string",
+              description: "Document type. Options: web, pdf, youtube",
+              example: "",
+            },
+            docUrl: {
+              type: "string",
+              description:
+                "Document URL . link web only endpoint is .htm or .html. link pdf only endpoint is .pdf",
+              example: "",
+            },
+            documentsId: {
+              type: "string",
+              description: "IDs of related documents, in JSON array format",
+              example: "[]",
+            },
+            filePdf: {
+              type: "string",
+              format: "binary",
+              description:
+                "File upload for mindmap, only pdf files are allowed, package free default limit size is 5MB",
+            },
+          },
+          required: ["llm", "type", "depth", "child", "orgId", "documentsId"],
         },
+      },
+      exampleFormData: {
+        examples: {
+          createByCretive: {
+            summary: "Create Mindmap by type creative",
+            value: bodyCreateExampleByCreative,
+          },
+          createByCretivePDF: {
+            summary: "Create Mindmap by upload file pdf",
+            value: bodyCreateExampleByUploadFilePDF,
+          },
+          createBySummaryPDF: {
+            summary: "Create Mindmap by type summary with link pdf",
+            value: bodyCreateExampleBySummaryPDF,
+          },
+          createBySummaryWEB: {
+            summary: "Create Mindmap by type summary with web",
+            value: bodyCreateExampleBySummaryWEB,
+          },
+          createBySummaryYoutube: {
+            summary: "Create Mindmap by type summary with youtube",
+            value: bodyCreateExampleBySummaryYoutube,
+          },
+        },
+      },
     },
-    responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
-})
-
+    required: true,
+  },
+  responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
+});
 mindmapRouter.post(
-    "/upload",
-    uploadFileMiddleware("free").single("file"),
-    mindmapController.createMindmapByUploadFile
-)
+  "/create",
+  uploadFileMiddleware().single("filePdf"),
+  mindmapController.createMindmap
+);
 
-mindmapRouter.get("/:orgId/list-mindmap", mindmapController.getMindmaps)
+mindmapRouter.get("/:orgId/list-mindmap", mindmapController.getMindmaps);
 
-mindmapRouter.delete("/delete", mindmapController.deleteMindmaps)
+mindmapRouter.delete("/delete", mindmapController.deleteMindmaps);

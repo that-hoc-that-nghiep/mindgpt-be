@@ -1,4 +1,4 @@
-import { DocumentTypeUpload, MindmapType, RoleChat } from "@/constant";
+import { MindmapType, RoleChat } from "@/constant";
 import {
   ConversationModel,
   EdgesModel,
@@ -153,7 +153,7 @@ export class MindmapRepository {
     } else {
       return result.acknowledged;
     }
-  }
+  };
 }
 
 export const mindmapRepository = new MindmapRepository();

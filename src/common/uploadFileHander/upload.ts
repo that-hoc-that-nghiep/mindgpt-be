@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
-import { FILE_LIMITS, MinmeTypeFile } from "@/constant";
+import { MinmeTypeFile } from "@/constant";
 import fs from "fs";
 const sanitizeFileName = (filename: string): string => {
   return filename.toLowerCase().replace(/[^a-z0-9]/g, "_");
@@ -14,9 +14,7 @@ if (!fs.existsSync(uploadDirectory)) {
   fs.mkdirSync(uploadDirectory, { recursive: true });
 }
 // Cấu hình Multer
-export const uploadFileMiddleware = (
-  level: "free" | "plus" | "pro" = "free"
-) => {
+export const uploadFileMiddleware = () => {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       const uploadPath = path.join(__dirname, "uploadFileLocal");
@@ -45,7 +43,6 @@ export const uploadFileMiddleware = (
 
   return multer({
     storage: storage,
-    limits: { fileSize: FILE_LIMITS[level] },
     fileFilter: fileFilter,
   });
 };
