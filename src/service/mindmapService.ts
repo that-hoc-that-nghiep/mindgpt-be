@@ -1,4 +1,9 @@
-import { DocumentTypeRequest, FILE_LIMITS, OrgSubscription } from "@/constant";
+import {
+  DocumentTypeRequest,
+  FILE_LIMITS,
+  MindmapType,
+  OrgSubscription,
+} from "@/constant";
 import axios from "axios";
 import { MindmapRepository } from "@/respository/mindmapRepository";
 import { parseMermaidToJson } from "@/common/parseData/parseMermaidToJson";
@@ -26,53 +31,94 @@ export class MindmapService {
     this.mindmapRepository = repository;
   }
   async createMindmap(values: CreateRequest) {
-    let responseAiHub = null;
-    const baseUrl = config.API_AI_HUB;
-    const url = `${baseUrl}/mindmap/create`;
     try {
-      const countLimit = 3;
-      let count = 1;
       const parseDocumentsId =
         values.documentsId?.replace(/[\[\]\"]/g, "").split(",") || [];
       if (parseDocumentsId.length === 1 && parseDocumentsId[0] === "") {
         parseDocumentsId.length = 0; // Chuyển thành mảng rỗng
       }
-      const requestAI: CreativeRequestAI = {
-        llm: values.llm,
-        type: values.type,
-        prompt: values.prompt || "",
-        documentsId: parseDocumentsId,
-        depth: Number(values.depth),
-        child: Number(values.child),
-      };
-      do {
-        responseAiHub = await axios.post(url, requestAI, {
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-          },
-          validateStatus: function (status: number) {
-            return status >= 200 && status < 300;
-          },
-        });
-
-        const responseBody = responseAiHub.data;
-        if (responseBody && responseBody.hasOwnProperty("data")) {
-          const responseBodyData = responseAiHub.data.data;
-          const parsedData = parseMermaidToJson(
-            responseBodyData,
-            values.prompt || "",
-            values.type,
-            requestAI.documentsId || [],
-            values.orgId
-          );
+      switch (values.type) {
+        case MindmapType.CREATIVE:
+          const requestAI: CreativeRequestAI = {
+            llm: values.llm,
+            type: values.type,
+            prompt: values.prompt || "",
+            documentsId: parseDocumentsId,
+            depth: Number(values.depth),
+            child: Number(values.child),
+          };
+          const parsedData = handleParseMermaid(values, requestAI);
           const newMindmap = await this.mindmapRepository.createNewMindmap(
             await parsedData
           );
           return newMindmap;
-        } else {
-          count++;
-        }
-      } while (count < countLimit);
+        case MindmapType.SUMMARY:
+          switch (values.docType) {
+            case DocumentTypeRequest.PDF:
+              const requestAIByPdf: SummaryRequestAI = {
+                llm: values.llm,
+                type: values.type,
+                document: {
+                  type: values.docType,
+                  url: values.docUrl || "",
+                },
+                prompt: "",
+                documentsId: parseDocumentsId,
+                depth: Number(values.depth),
+                child: Number(values.child),
+              };
+              const parsedDataLinkPdf = handleParseMermaid(
+                values,
+                requestAIByPdf
+              );
+              const newMindmapByLinkPdf =
+                await this.mindmapRepository.createNewMindmap(
+                  await parsedDataLinkPdf
+                );
+              return newMindmapByLinkPdf;
+            case DocumentTypeRequest.WEB:
+              const requestAIByWeb: SummaryRequestAI = {
+                llm: values.llm,
+                type: values.type,
+                document: {
+                  type: values.docType,
+                  url: values.docUrl || "",
+                },
+                prompt: "",
+                documentsId: parseDocumentsId,
+                depth: Number(values.depth),
+                child: Number(values.child),
+              };
+              const parsedDataWeb = handleParseMermaid(values, requestAIByWeb);
+              const newMindmapByWeb =
+                await this.mindmapRepository.createNewMindmap(
+                  await parsedDataWeb
+                );
+              return newMindmapByWeb;
+            case DocumentTypeRequest.YOUTUBE:
+              const requestAIByYoutube: SummaryRequestAI = {
+                llm: values.llm,
+                type: values.type,
+                document: {
+                  type: values.docType,
+                  url: values.docUrl || "",
+                },
+                prompt: "",
+                documentsId: parseDocumentsId,
+                depth: Number(values.depth),
+                child: Number(values.child),
+              };
+              const parsedDataYoutube = handleParseMermaid(
+                values,
+                requestAIByYoutube
+              );
+              const newMindmapByYoutube =
+                await this.mindmapRepository.createNewMindmap(
+                  await parsedDataYoutube
+                );
+              return newMindmapByYoutube;
+          }
+      }
     } catch (error) {
       const errorMessage = `Error creating new mindmap: ${
         (error as Error).message
@@ -201,4 +247,44 @@ export const validatePackageOrg = async (
   }
   return true;
 };
+
+export const handleParseMermaid = async (
+  values: CreateRequest,
+  requestBody: any
+) => {
+  const countLimit = 3;
+  let count = 1;
+  do {
+    const responseAiHub = await axios
+      .post(url, requestBody, {
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+        validateStatus: function (status: number) {
+          return status >= 200 && status < 300;
+        },
+      })
+      .catch((error) => {
+        throw new Error("Fall call api hub");
+      });
+    const responseBody = responseAiHub.data;
+    if (responseBody && responseBody.hasOwnProperty("data")) {
+      const responseDocumentsId = responseBody.documentsId;
+      const responseBodyData = responseAiHub.data.data;
+      const parsedData = parseMermaidToJson(
+        responseBodyData,
+        values.prompt || "",
+        values.type,
+        responseDocumentsId || [],
+        values.orgId,
+        requestBody.document || {}
+      );
+      return parsedData;
+    } else {
+      count++;
+    }
+  } while (count < countLimit);
+  throw new Error("Error handler create mindmap");
+};
+
 export const mindmapService = new MindmapService();
