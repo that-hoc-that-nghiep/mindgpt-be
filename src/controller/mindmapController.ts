@@ -50,7 +50,7 @@ export class MindmapController {
         const orgInfo = getOrgFromUser(user, values.orgId);
         validatePackageOrg(file, orgInfo);
         const serviceResponse =
-          await mindmapService.createNewMindmapByUploadFile(values);
+          await mindmapService.createNewMindmapByUploadFile(values, file);
         res.status(statusCode.OK).json({
           status: statusCode.OK,
           message: "Create mindmap by upload file successfully",

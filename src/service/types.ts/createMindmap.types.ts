@@ -9,7 +9,6 @@ export interface CreativeRequestAI {
 }
 
 export interface CreateMinmapByUploadFileRequest {
-  filePdf: any;
   llm: LLMModel;
   type: MindmapType;
   orgId: string;
@@ -37,6 +36,7 @@ export interface SummaryRequestAI {
     type: DocumentTypeRequest;
     url: string;
   };
+  prompt: string;
   documentsId: string[];
   depth: number;
   child: number;

@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
-import { FILE_LIMITS, MinmeTypeFile } from "@/constant";
+import { MinmeTypeFile } from "@/constant";
 import fs from "fs";
 const sanitizeFileName = (filename: string): string => {
   return filename.toLowerCase().replace(/[^a-z0-9]/g, "_");

@@ -1,10 +1,4 @@
-import {
-  DocumentTypeRequest,
-  FILE_LIMITS,
-  LLMModel,
-  MindmapType,
-  OrgSubscription,
-} from "@/constant";
+import { DocumentTypeRequest, FILE_LIMITS, OrgSubscription } from "@/constant";
 import axios from "axios";
 import { MindmapRepository } from "@/respository/mindmapRepository";
 import { parseMermaidToJson } from "@/common/parseData/parseMermaidToJson";
@@ -18,6 +12,7 @@ import {
   SummaryRequestAI,
 } from "./types.ts/createMindmap.types";
 import { Organization } from "./authService";
+import { unlink } from "fs/promises";
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -81,20 +76,27 @@ export class MindmapService {
     }
   }
 
-  async createNewMindmapByUploadFile(values: CreateMinmapByUploadFileRequest) {
+  async createNewMindmapByUploadFile(
+    values: CreateMinmapByUploadFileRequest,
+    filePdf: any
+  ) {
     try {
-      const fileData = await fs.readFile(values.filePdf.path);
+      const fileData = await fs.readFile(filePdf.path);
       const dataSupabase = await supabase.storage
         .from("document")
-        .upload(values.filePdf.filename, fileData, {
+        .upload(filePdf.filename, fileData, {
           cacheControl: "3600",
           upsert: false,
-          contentType: values.filePdf.mimetype,
+          contentType: filePdf.mimetype,
+        })
+        .catch((error) => {
+          throw new Error("Error uploading file to Supabase: " + error);
         });
       const fullPathSupabase: any = dataSupabase.data?.path;
       const linkPublicSupabase = await supabase.storage
         .from("document")
         .getPublicUrl(fullPathSupabase).data.publicUrl;
+      await unlink(filePdf.path);
       const requestAIHubFile: SummaryRequestAI = {
         llm: values.llm,
         type: values.type,
@@ -103,6 +105,7 @@ export class MindmapService {
           url: linkPublicSupabase,
         },
         documentsId: [],
+        prompt: "",
         depth: Number(values.depth),
         child: Number(values.child),
       };
