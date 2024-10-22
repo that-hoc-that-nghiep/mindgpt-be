@@ -1,41 +1,51 @@
-import { DocumentTypeUpload, LLMModel, MindmapType } from "@/constant";
+import {
+  DocumentTypeRequest,
+  FILE_LIMITS,
+  LLMModel,
+  MindmapType,
+  OrgSubscription,
+} from "@/constant";
 import axios from "axios";
 import { MindmapRepository } from "@/respository/mindmapRepository";
-import { ServiceResponse } from "@/common/model/serviceResponse";
 import { parseMermaidToJson } from "@/common/parseData/parseMermaidToJson";
 import { createClient } from "@supabase/supabase-js";
-import { StatusCodes } from "http-status-codes";
 import config from "config";
 import * as fs from "fs/promises";
-export interface MindmapRequestAiHub {
-    llm: LLMModel;
-    type: MindmapType;
-    prompt: string;
-    documentsId: string[];
-    depth: number;
-    child: number;
-    orgId: string;
-}
+import {
+  CreateMinmapByUploadFileRequest,
+  CreateRequest,
+  CreativeRequestAI,
+  SummaryRequestAI,
+} from "./types.ts/createMindmap.types";
+import { Organization } from "./authService";
+
 const supabase = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_KEY!
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_KEY!
 );
 const baseUrl = config.API_AI_HUB;
 const url = `${baseUrl}/mindmap/create`;
 export class MindmapService {
-    private mindmapRepository: MindmapRepository;
+  private mindmapRepository: MindmapRepository;
   constructor(repository: MindmapRepository = new MindmapRepository()) {
     this.mindmapRepository = repository;
   }
-  async createMindmap(values: MindmapRequestAiHub) {
+  async createMindmap(values: CreateRequest) {
     let responseAiHub = null;
     const baseUrl = config.API_AI_HUB;
     const url = `${baseUrl}/mindmap/create`;
     try {
       const countLimit = 3;
       let count = 1;
+      const requestAI: CreativeRequestAI = {
+        llm: values.llm,
+        type: values.type,
+        prompt: values.prompt || "",
+        depth: values.depth,
+        child: values.child,
+      };
       do {
-        responseAiHub = await axios.post(url, values, {
+        responseAiHub = await axios.post(url, requestAI, {
           headers: {
             "Content-Type": "application/json; charset=utf-8",
           },
@@ -49,9 +59,9 @@ export class MindmapService {
           const responseBodyData = responseAiHub.data.data;
           const parsedData = parseMermaidToJson(
             responseBodyData,
-            values.prompt,
+            values.prompt || "",
             values.type,
-            values.documentsId,
+            [],
             values.orgId
           );
           const newMindmap = await this.mindmapRepository.createNewMindmap(
@@ -71,31 +81,30 @@ export class MindmapService {
     }
   }
 
-  async createNewMindmapByUploadFile(file: any, orgId: string) {
+  async createNewMindmapByUploadFile(values: CreateMinmapByUploadFileRequest) {
     try {
-      const fileData = await fs.readFile(file.path);
+      const fileData = await fs.readFile(values.filePdf.path);
       const dataSupabase = await supabase.storage
         .from("document")
-        .upload(file.filename, fileData, {
+        .upload(values.filePdf.filename, fileData, {
           cacheControl: "3600",
           upsert: false,
-          contentType: file.mimetype,
+          contentType: values.filePdf.mimetype,
         });
       const fullPathSupabase: any = dataSupabase.data?.path;
       const linkPublicSupabase = await supabase.storage
         .from("document")
         .getPublicUrl(fullPathSupabase).data.publicUrl;
-      const requestAIHubFile = {
-        llm: LLMModel.GPT_4o,
-        type: MindmapType.SUMMARY,
+      const requestAIHubFile: SummaryRequestAI = {
+        llm: values.llm,
+        type: values.type,
         document: {
-          type: DocumentTypeUpload.PDF,
+          type: DocumentTypeRequest.PDF,
           url: linkPublicSupabase,
         },
-        prompt: "",
         documentsId: [],
-        depth: 4,
-        child: 3,
+        depth: Number(values.depth),
+        child: Number(values.child),
       };
 
       const countLimit = 3;
@@ -113,10 +122,10 @@ export class MindmapService {
           const responseDocumentsId = responseBody.documentsId;
           const parsedData = parseMermaidToJson(
             responseBodyData,
-            requestAIHubFile.prompt,
+            "",
             requestAIHubFile.type,
             responseDocumentsId,
-            orgId,
+            values.orgId,
             requestAIHubFile.document
           );
           const newMindmap = await this.mindmapRepository.createNewMindmap(
@@ -136,25 +145,50 @@ export class MindmapService {
     }
   }
 
-    async getMindmapsWithPagination(page: number, orgId: string): Promise<{ mindmaps: any[], total: number, totalPages: number, currentPage: number }> {
-        const limit = 5; // 5 maps 1 trang
-        if (page < 1) page = 1;
-        const skip = (page - 1) * limit;
+  async getMindmapsWithPagination(
+    page: number,
+    orgId: string
+  ): Promise<{
+    mindmaps: any[];
+    total: number;
+    totalPages: number;
+    currentPage: number;
+  }> {
+    const limit = 5; // 5 maps 1 trang
+    if (page < 1) page = 1;
+    const skip = (page - 1) * limit;
 
-        const { mindmaps, total } = await this.mindmapRepository.getMindmapsByOrgId(skip, limit, orgId);
+    const { mindmaps, total } = await this.mindmapRepository.getMindmapsByOrgId(
+      skip,
+      limit,
+      orgId
+    );
 
-        return {
-            mindmaps,
-            total,
-            totalPages: Math.ceil(total / limit),
-            currentPage: page,
-        };
-    }
+    return {
+      mindmaps,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    };
+  }
 
-    async deleteMindmap(mindmapId: string) {
-        const result = await this.mindmapRepository.deleteMindmap(mindmapId);
-        return result;
-    }
+  async deleteMindmap(mindmapId: string) {
+    const result = await this.mindmapRepository.deleteMindmap(mindmapId);
+    return result;
+  }
 }
 
+export const validatePackageOrg = (
+  file: Express.Multer.File,
+  orgInfo?: Organization
+) => {
+  const packageOrg = orgInfo?.subscription;
+  const sizePackegeOrg = FILE_LIMITS[packageOrg as OrgSubscription];
+  if (file.size > sizePackegeOrg) {
+    throw new Error(
+      `Package ${packageOrg} is limited to ${sizePackegeOrg / (1024 * 1024)} MB`
+    );
+  }
+  return true;
+};
 export const mindmapService = new MindmapService();
