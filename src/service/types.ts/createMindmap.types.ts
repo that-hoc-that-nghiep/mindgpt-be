@@ -23,7 +23,7 @@ export interface CreateRequest {
   prompt?: string;
   docType?: DocumentTypeRequest;
   docUrl?: string;
-  documentsId?: string[];
+  documentsId?: string;
   depth: number;
   child: number;
   orgId: string;

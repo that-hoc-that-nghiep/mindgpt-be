@@ -30,6 +30,7 @@ export function validateMindmapRequest(req: Request) {
     if (!prompt || prompt.trim() === "") {
       missingFields.push("prompt");
     }
+    if (!documentsId) missingFields.push("documentsId");
   }
 
   // Điều kiện cho 'summary'
@@ -111,7 +112,23 @@ export function validateMindmapRequest(req: Request) {
       );
     }
   }
-
+  if (type === MindmapType.CREATIVE && !file) {
+    try {
+      const documentsIdParseArray = JSON.parse(documentsId);
+      if (
+        !Array.isArray(documentsIdParseArray) ||
+        !documentsIdParseArray.every((item) => typeof item === "string")
+      ) {
+        throw new Error(
+          "Invalid value for documentsId. Expected an array string"
+        );
+      }
+    } catch (e) {
+      throw new Error(
+        "Invalid value for documentsId. Expected an array string"
+      );
+    }
+  }
   // Nếu tất cả đều hợp lệ, trả về thành công (true)
   return { ...req.body };
 }

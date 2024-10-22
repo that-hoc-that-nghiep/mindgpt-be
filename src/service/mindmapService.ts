@@ -32,11 +32,16 @@ export class MindmapService {
     try {
       const countLimit = 3;
       let count = 1;
+      const parseDocumentsId =
+        values.documentsId?.replace(/[\[\]\"]/g, "").split(",") || [];
+      if (parseDocumentsId.length === 1 && parseDocumentsId[0] === "") {
+        parseDocumentsId.length = 0; // Chuyển thành mảng rỗng
+      }
       const requestAI: CreativeRequestAI = {
         llm: values.llm,
         type: values.type,
         prompt: values.prompt || "",
-        documentsId: values.documentsId || [],
+        documentsId: parseDocumentsId,
         depth: Number(values.depth),
         child: Number(values.child),
       };
@@ -57,7 +62,7 @@ export class MindmapService {
             responseBodyData,
             values.prompt || "",
             values.type,
-            [],
+            requestAI.documentsId || [],
             values.orgId
           );
           const newMindmap = await this.mindmapRepository.createNewMindmap(
