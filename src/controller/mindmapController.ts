@@ -8,7 +8,6 @@ import {
   isUserInOrg,
 } from "@/service/authService";
 import { MindmapType } from "@/constant";
-import multer from "multer";
 import { validateMindmapRequest } from "@/common/validateRequest/validateMindmapRequest";
 import { unlink } from "fs/promises";
 

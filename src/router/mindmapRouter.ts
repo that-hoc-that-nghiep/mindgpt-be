@@ -5,19 +5,51 @@ import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import z from "zod";
 import { MindmapSchemaDoc } from "@/model/mindmapModel";
 import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
-import multer from "multer";
-const bodyCreateExample = {
+import { create } from "domain";
+
+const bodyCreateExampleByCreative = {
   type: "creative",
   prompt: "bão yagi 2024",
   documentsId: [],
-  document: {},
-  depth: 4,
+  depth: 3,
   child: 3,
   orgId: "f69d607f-1404-4e70-af7c-ec6447854a7e",
 };
-const formDataExample = {
-  key: "file",
-  value: "",
+const bodyCreateExampleByUploadFilePDF = {
+  type: "summary",
+  filePdf: "test.pdf",
+  depth: 3,
+  child: 3,
+  orgId: "f69d607f-1404-4e70-af7c-ec6447854a7e",
+};
+const bodyCreateExampleBySummaryPDF = {
+  type: "summary",
+  docType: "pdf",
+  docUrl:
+    "https://znacytaqncsguiyhgtgj.supabase.co/storage/v1/object/public/document/Resume_quydx.pdf",
+  documentsId: [],
+  depth: 3,
+  child: 3,
+  orgId: "f69d607f-1404-4e70-af7c-ec6447854a7e",
+};
+const bodyCreateExampleBySummaryWEB = {
+  type: "summary",
+  docType: "web",
+  docUrl:
+    "https://dantri.com.vn/giao-duc/nam-sinh-vien-it-gianh-quan-quan-lap-trinh-duoc-dac-cach-tuyen-dung-du-chua-tot-nghiep-20240729151250529.htm",
+  documentsId: [],
+  depth: 3,
+  child: 3,
+  orgId: "f69d607f-1404-4e70-af7c-ec6447854a7e",
+};
+const bodyCreateExampleBySummaryYoutube = {
+  type: "summary",
+  docType: "youtube",
+  docUrl: "",
+  documentsId: [],
+  depth: 3,
+  child: 3,
+  orgId: "f69d607f-1404-4e70-af7c-ec6447854a7e",
 };
 export const mindmapRouter = express.Router();
 export const mindmapRegistry = new OpenAPIRegistry();
@@ -33,22 +65,23 @@ mindmapRegistry.registerPath({
           properties: {
             llm: {
               type: "string",
-              description: "The LLM model to be used",
-              example: "GPT-3",
+              description:
+                "The LLM model to be used. Two options: gpt-4o and gpt-4o-mini. Should choose gpt-4o by default",
+              example: "gpt-4o",
             },
             type: {
               type: "string",
-              description: "Type of the Mindmap",
-              example: "CREATIVE",
+              description: "Type of the Mindmap. Options: creative, summary",
+              example: "creative",
             },
             depth: {
               type: "integer",
-              description: "Depth of the Mindmap",
-              example: 2,
+              description: "Depth of the Mindmap. greater than 0",
+              example: 3,
             },
             child: {
               type: "integer",
-              description: "Number of child nodes",
+              description: "Number of child nodes. greater than 0",
               example: 3,
             },
             orgId: {
@@ -59,41 +92,56 @@ mindmapRegistry.registerPath({
             prompt: {
               type: "string",
               description: "Prompt for generating the Mindmap",
-              example: "Generate a mindmap for project management",
+              example: "bao yagi 2024",
             },
             docType: {
               type: "string",
-              description: "Document type",
-              example: "web",
+              description: "Document type. Options: web, pdf, youtube",
+              example: "",
             },
             docUrl: {
               type: "string",
-              description: "Document URL (for web document types)",
-              example: "https://example.com/file.html",
+              description:
+                "Document URL . link web only endpoint is .htm or .html. link pdf only endpoint is .pdf",
+              example: "",
             },
             documentsId: {
               type: "string",
               description: "IDs of related documents, in JSON array format",
-              example: '["doc1", "doc2", "doc3"]',
+              example: "[]",
             },
             filePdf: {
               type: "string",
               format: "binary",
-              description: "File upload for mindmap",
+              description:
+                "File upload for mindmap, only pdf files are allowed, package free default limit size is 5MB",
             },
           },
           required: ["llm", "type", "depth", "child", "orgId", "documentsId"],
         },
-        example: {
-          llm: "GPT-3",
-          type: "CREATIVE",
-          depth: 2,
-          child: 3,
-          orgId: "org_123",
-          prompt: "Generate a mindmap for project management",
-          docType: "web",
-          docUrl: "https://example.com/file.html",
-          documentsId: '["doc1", "doc2", "doc3"]',
+      },
+      exampleFormData: {
+        examples: {
+          createByCretive: {
+            summary: "Create Mindmap by type creative",
+            value: bodyCreateExampleByCreative,
+          },
+          createByCretivePDF: {
+            summary: "Create Mindmap by upload file pdf",
+            value: bodyCreateExampleByUploadFilePDF,
+          },
+          createBySummaryPDF: {
+            summary: "Create Mindmap by type summary with link pdf",
+            value: bodyCreateExampleBySummaryPDF,
+          },
+          createBySummaryWEB: {
+            summary: "Create Mindmap by type summary with web",
+            value: bodyCreateExampleBySummaryWEB,
+          },
+          createBySummaryYoutube: {
+            summary: "Create Mindmap by type summary with youtube",
+            value: bodyCreateExampleBySummaryYoutube,
+          },
         },
       },
     },
