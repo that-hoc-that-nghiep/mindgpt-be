@@ -106,6 +106,14 @@ export function validateMindmapRequest(req: Request) {
         );
       }
     }
+
+    if (docType === "pdf") {
+      const pdfRegex = /^https?:\/\/.*\.(pdf)$/i;
+      if (!pdfRegex.test(docUrl)) {
+        throw new Error("Invalid value for docUrl. Expected a .pdf link");
+      }
+    }
+
     try {
       const documentsIdParseArray = JSON.parse(documentsId);
       if (

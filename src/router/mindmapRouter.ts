@@ -27,8 +27,74 @@ mindmapRegistry.registerPath({
   tags: ["Mindmap"],
   requestBody: {
     content: {
-      "application/json": {
-        example: bodyCreateExample,
+      "multipart/form-data": {
+        schema: {
+          type: "object",
+          properties: {
+            llm: {
+              type: "string",
+              description: "The LLM model to be used",
+              example: "GPT-3",
+            },
+            type: {
+              type: "string",
+              description: "Type of the Mindmap",
+              example: "CREATIVE",
+            },
+            depth: {
+              type: "integer",
+              description: "Depth of the Mindmap",
+              example: 2,
+            },
+            child: {
+              type: "integer",
+              description: "Number of child nodes",
+              example: 3,
+            },
+            orgId: {
+              type: "string",
+              description: "Organization ID",
+              example: "org_123",
+            },
+            prompt: {
+              type: "string",
+              description: "Prompt for generating the Mindmap",
+              example: "Generate a mindmap for project management",
+            },
+            docType: {
+              type: "string",
+              description: "Document type",
+              example: "web",
+            },
+            docUrl: {
+              type: "string",
+              description: "Document URL (for web document types)",
+              example: "https://example.com/file.html",
+            },
+            documentsId: {
+              type: "string",
+              description: "IDs of related documents, in JSON array format",
+              example: '["doc1", "doc2", "doc3"]',
+            },
+            filePdf: {
+              type: "string",
+              format: "binary",
+              description: "File upload for mindmap",
+            },
+          },
+          required: ["llm", "type", "depth", "child", "orgId", "documentsId"],
+        },
+        example: {
+          llm: "GPT-3",
+          type: "CREATIVE",
+          depth: 2,
+          child: 3,
+          orgId: "org_123",
+          prompt: "Generate a mindmap for project management",
+          docType: "web",
+          docUrl: "https://example.com/file.html",
+          documentsId: '["doc1", "doc2", "doc3"]',
+        },
       },
     },
     required: true,
@@ -40,26 +106,6 @@ mindmapRouter.post(
   uploadFileMiddleware().single("filePdf"),
   mindmapController.createMindmap
 );
-
-// mindmapRegistry.registerPath({
-//   method: "post",
-//   path: "/mindmap/upload",
-//   tags: ["Mindmap"],
-//   requestBody: {
-//     content: {
-//       "application/pdf": {
-//         example: formDataExample,
-//       },
-//     },
-//   },
-//   responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
-// });
-
-// mindmapRouter.post(
-//   "/upload",
-//   uploadFileMiddleware("free").single("file"),
-//   mindmapController.createMindmapByUploadFile
-// );
 
 mindmapRouter.get("/:orgId/list-mindmap", mindmapController.getMindmaps);
 

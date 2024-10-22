@@ -10,6 +10,7 @@ import {
 import { MindmapType } from "@/constant";
 import multer from "multer";
 import { validateMindmapRequest } from "@/common/validateRequest/validateMindmapRequest";
+import { unlink } from "fs/promises";
 
 export class MindmapController {
   createMindmap: RequestHandler = async (
@@ -43,7 +44,10 @@ export class MindmapController {
             data: serviceResponse,
           });
         }
-      } else if (!file) {
+      } else if (!file || (file && values.type === MindmapType.CREATIVE)) {
+        if (file && values.type === MindmapType.CREATIVE) {
+          await unlink(file.path);
+        }
         const serviceResponse = await mindmapService.createMindmap(values);
         res.status(statusCode.OK).json({
           status: statusCode.OK,
