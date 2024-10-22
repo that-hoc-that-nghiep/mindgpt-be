@@ -45,17 +45,21 @@ export class MindmapController {
         return;
       }
       const file = req.file;
-
       if (file && values.type === MindmapType.SUMMARY) {
         const orgInfo = getOrgFromUser(user, values.orgId);
-        validatePackageOrg(file, orgInfo);
-        const serviceResponse =
-          await mindmapService.createNewMindmapByUploadFile(values, file);
-        res.status(statusCode.OK).json({
-          status: statusCode.OK,
-          message: "Create mindmap by upload file successfully",
-          data: serviceResponse,
-        });
+        const validatePackageOrgResponse = await validatePackageOrg(
+          file,
+          orgInfo
+        );
+        if (validatePackageOrgResponse) {
+          const serviceResponse =
+            await mindmapService.createNewMindmapByUploadFile(values, file);
+          res.status(statusCode.OK).json({
+            status: statusCode.OK,
+            message: "Create mindmap by upload file successfully",
+            data: serviceResponse,
+          });
+        }
       }
     } catch (error) {
       const errorMessage = `${(error as Error).message}`;

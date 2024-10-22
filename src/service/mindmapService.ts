@@ -181,13 +181,14 @@ export class MindmapService {
   }
 }
 
-export const validatePackageOrg = (
+export const validatePackageOrg = async (
   file: Express.Multer.File,
   orgInfo?: Organization
 ) => {
   const packageOrg = orgInfo?.subscription;
   const sizePackegeOrg = FILE_LIMITS[packageOrg as OrgSubscription];
   if (file.size > sizePackegeOrg) {
+    await unlink(file.path);
     throw new Error(
       `Package ${packageOrg} is limited to ${sizePackegeOrg / (1024 * 1024)} MB`
     );
