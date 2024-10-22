@@ -2,7 +2,17 @@ import { DocumentTypeRequest, LLMModel, MindmapType } from "@/constant";
 import { Request } from "express";
 
 export function validateMindmapRequest(req: Request) {
-  const { llm, type, depth, child, orgId, prompt, docType, docUrl } = req.body;
+  const {
+    llm,
+    type,
+    depth,
+    child,
+    orgId,
+    prompt,
+    docType,
+    docUrl,
+    documentsId,
+  } = req.body;
   const depthNum = Number(depth);
   const childNum = Number(child);
   const file = req.file;
@@ -28,6 +38,7 @@ export function validateMindmapRequest(req: Request) {
       // Nếu không có tệp, yêu cầu docType và docUrl
       if (!docType) missingFields.push("docType");
       if (!docUrl || docUrl.trim() === "") missingFields.push("docUrl");
+      if (!documentsId) missingFields.push("documentsId");
     }
   }
 
@@ -57,17 +68,17 @@ export function validateMindmapRequest(req: Request) {
     throw new Error("Invalid value for orgId. Expected a string");
   }
 
-  // if (typeof depthNum !== "number" || depthNum > 0) {
-  //   throw new Error(
-  //     "Invalid value for depth. Expected a number greater than 0"
-  //   );
-  // }
+  if (typeof depthNum !== "number" || depthNum < 0) {
+    throw new Error(
+      "Invalid value for depth. Expected a number greater than 0"
+    );
+  }
 
-  // if (typeof childNum !== "number" || childNum > 0) {
-  //   throw new Error(
-  //     "Invalid value for child. Expected a number greater than 0"
-  //   );
-  // }
+  if (typeof childNum !== "number" || childNum < 0) {
+    throw new Error(
+      "Invalid value for child. Expected a number greater than 0"
+    );
+  }
 
   // Kiểm tra thêm cho 'summary'
   if (type === MindmapType.SUMMARY && !file) {
@@ -83,6 +94,21 @@ export function validateMindmapRequest(req: Request) {
 
     if (typeof docUrl !== "string" || docUrl.trim() === "") {
       throw new Error("Invalid value for docUrl. Expected a non-empty string");
+    }
+    try {
+      const documentsIdParseArray = JSON.parse(documentsId);
+      if (
+        !Array.isArray(documentsIdParseArray) ||
+        !documentsIdParseArray.every((item) => typeof item === "string")
+      ) {
+        throw new Error(
+          "Invalid value for documentsId. Expected an array string"
+        );
+      }
+    } catch (e) {
+      throw new Error(
+        "Invalid value for documentsId. Expected an array string"
+      );
     }
   }
 

@@ -25,7 +25,7 @@ export class MindmapService {
   constructor(repository: MindmapRepository = new MindmapRepository()) {
     this.mindmapRepository = repository;
   }
-  async createMindmap(values: CreateRequest) {
+  async createMindmapByTypeCreative(values: CreateRequest) {
     let responseAiHub = null;
     const baseUrl = config.API_AI_HUB;
     const url = `${baseUrl}/mindmap/create`;

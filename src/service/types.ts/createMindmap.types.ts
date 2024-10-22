@@ -20,7 +20,6 @@ export interface CreateRequest {
   llm: LLMModel;
   type: MindmapType;
   prompt?: string;
-  filePdf?: any;
   docType?: DocumentTypeRequest;
   docUrl?: string;
   documentsId?: string[];
