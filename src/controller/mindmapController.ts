@@ -1,33 +1,16 @@
 import { Request, Response, RequestHandler } from "express";
 import { mindmapService, validatePackageOrg } from "@/service/mindmapService";
-import statusCode, { StatusCodes } from "http-status-codes";
-import { ServiceResponse } from "@/common/model/serviceResponse";
+import statusCode from "http-status-codes";
 import {
   getBearerToken,
   getOrgFromUser,
   getUserInfo,
   isUserInOrg,
 } from "@/service/authService";
-import {
-  FILE_LIMITS,
-  MindmapType,
-  MinmeTypeFile,
-  OrgSubscription,
-} from "@/constant";
+import { MindmapType } from "@/constant";
 import multer from "multer";
-import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
-import { CreateMinmapByUploadFileRequest } from "@/service/types.ts/createMindmap.types";
 import { validateMindmapRequest } from "@/common/validateRequest/validateMindmapRequest";
 
-interface CreateMindMapDto {
-  type: MindmapType;
-  prompt: string | null;
-  document: File | null;
-  depth: number;
-  child: number;
-  orgId: string;
-}
-const upload = multer();
 export class MindmapController {
   createMindmap: RequestHandler = async (
     req: Request,
@@ -61,10 +44,11 @@ export class MindmapController {
           });
         }
       } else if (!file) {
+        const serviceResponse = await mindmapService.createMindmap(values);
         res.status(statusCode.OK).json({
-          data: {
-            values,
-          },
+          status: statusCode.OK,
+          message: "Create mindmap successfully",
+          data: serviceResponse,
         });
       }
     } catch (error) {

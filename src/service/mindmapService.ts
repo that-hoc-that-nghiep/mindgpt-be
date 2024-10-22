@@ -25,7 +25,7 @@ export class MindmapService {
   constructor(repository: MindmapRepository = new MindmapRepository()) {
     this.mindmapRepository = repository;
   }
-  async createMindmapByTypeCreative(values: CreateRequest) {
+  async createMindmap(values: CreateRequest) {
     let responseAiHub = null;
     const baseUrl = config.API_AI_HUB;
     const url = `${baseUrl}/mindmap/create`;
@@ -36,8 +36,9 @@ export class MindmapService {
         llm: values.llm,
         type: values.type,
         prompt: values.prompt || "",
-        depth: values.depth,
-        child: values.child,
+        documentsId: values.documentsId || [],
+        depth: Number(values.depth),
+        child: Number(values.child),
       };
       do {
         responseAiHub = await axios.post(url, requestAI, {

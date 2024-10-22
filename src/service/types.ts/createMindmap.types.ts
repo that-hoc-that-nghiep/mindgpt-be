@@ -4,6 +4,7 @@ export interface CreativeRequestAI {
   llm: LLMModel;
   type: MindmapType;
   prompt: string;
+  documentsId: string[];
   depth: number;
   child: number;
 }
