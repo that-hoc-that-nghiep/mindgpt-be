@@ -4,6 +4,7 @@ import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 extendZodWithOpenApi(z);
 export type IMindmap = z.infer<typeof MindmapSchemaDoc>;
 export const MindmapSchemaDoc = z.object({
+  _id: z.string(),
   title: z.string(),
   thumbnail: z.string(),
   prompt: z.string(),
@@ -17,6 +18,23 @@ export const MindmapSchemaDoc = z.object({
   documentIds: z.string().array(),
   orgId: z.string(),
   conversation: z.string().array(),
+});
+
+export const NodesSchemaDoc = z.object({
+  id: z.string(),
+  label: z.string(),
+  level: z.number(),
+  pos: z.object({
+    x: z.number(),
+    y: z.number(),
+  }),
+  text_color: z.string(),
+  bg_color: z.string(),
+  size: z.object({
+    width: z.number(),
+    height: z.number(),
+  }),
+  note: z.string(),
 });
 const ConversationSchema = new mongoose.Schema({
   role: {
