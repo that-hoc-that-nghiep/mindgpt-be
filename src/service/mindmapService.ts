@@ -202,31 +202,27 @@ export class MindmapService {
     }
   }
 
-  async getMindmapsWithPagination(
-    page: number,
-    orgId: string
-  ): Promise<{
-    mindmaps: any[];
-    total: number;
-    totalPages: number;
-    currentPage: number;
-  }> {
-    const limit = 5; // 5 maps 1 trang
-    if (page < 1) page = 1;
-    const skip = (page - 1) * limit;
-
-    const { mindmaps, total } = await this.mindmapRepository.getMindmapsByOrgId(
-      skip,
-      limit,
-      orgId
-    );
-
-    return {
-      mindmaps,
-      total,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-    };
+  async getAllMindmaps(
+    orgId: string,
+    limit: number,
+    skip: number,
+    keyword: string
+  ) {
+    try {
+      const mindmaps = await this.mindmapRepository.getAllMindmaps(
+        orgId,
+        limit,
+        skip,
+        keyword
+      );
+      return mindmaps;
+    } catch (error) {
+      const errorMessage = `Error getting all mindmaps: ${
+        (error as Error).message
+      }`;
+      console.log(errorMessage);
+      throw new Error(errorMessage);
+    }
   }
 
   async deleteMindmap(mindmapId: string) {

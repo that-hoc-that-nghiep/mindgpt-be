@@ -155,6 +155,12 @@ mindmapRouter.post(
   mindmapController.createMindmap
 );
 
-mindmapRouter.get("/:orgId/list-mindmap", mindmapController.getMindmaps);
+mindmapRegistry.registerPath({
+  method: "get",
+  path: "/mindmap/:orgId/all",
+  tags: ["Mindmap"],
+  responses: {},
+});
+mindmapRouter.get("/:orgId/all", mindmapController.getAllMindmaps);
 
 mindmapRouter.delete("/delete", mindmapController.deleteMindmaps);

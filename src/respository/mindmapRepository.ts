@@ -94,52 +94,23 @@ export class MindmapRepository {
     return populatedMindmap;
   };
 
-  getMindmapsWithPagination = async (skip: number, limit: number) => {
-    console.warn(skip + " - " + limit);
-
-    const mindmaps = await MindmapModel.find({})
-      .skip(skip)
+  getAllMindmaps = async (
+    orgId: string,
+    skip: number,
+    limit: number,
+    keyword?: string
+  ) => {
+    const searchCondition = {
+      ...(keyword ? { title: { $regex: keyword, $options: "i" } } : {}),
+      orgId: orgId,
+    };
+    const mindmaps = await MindmapModel.find(searchCondition)
       .limit(limit)
-      .populate({
-        path: "nodes",
-        select: "-_id -__v",
-      })
-      .populate({
-        path: "edges",
-        select: "-_id -__v",
-      })
-      .populate({
-        path: "conversation",
-        select: "-_id -__v",
-      })
+      .skip(skip)
+      .select("-__v")
       .exec();
 
-    // Đếm tổng số mindmaps
-    const total = await MindmapModel.countDocuments();
-
-    return { mindmaps, total };
-  };
-
-  getMindmapsByOrgId = async (skip: number, limit: number, orgId: string) => {
-    const mindmaps = await MindmapModel.find({ orgId: orgId })
-      .skip(skip)
-      .limit(limit)
-      .populate({
-        path: "nodes",
-        select: "-_id -__v",
-      })
-      .populate({
-        path: "edges",
-        select: "-_id -__v",
-      })
-      .populate({
-        path: "conversation",
-        select: "-_id -__v",
-      })
-      .exec();
-
-    // Đếm tổng số mindmaps
-    const total = await MindmapModel.countDocuments();
+    const total = await MindmapModel.countDocuments(searchCondition);
 
     return { mindmaps, total };
   };
