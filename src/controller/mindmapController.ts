@@ -7,7 +7,12 @@ import {
   getUserInfo,
   isUserInOrg,
 } from "@/service/authService";
-import { MindmapType } from "@/constant";
+import {
+  LLM_OrgSubscription,
+  LLMModel,
+  MindmapType,
+  OrgSubscription,
+} from "@/constant";
 import { validateMindmapRequest } from "@/common/validateRequest/validateMindmapRequest";
 import { unlink } from "fs/promises";
 
@@ -30,13 +35,19 @@ export class MindmapController {
       const file = req.file;
       if (file && values.type === MindmapType.SUMMARY) {
         const orgInfo = getOrgFromUser(user, values.orgId);
+        const llmPackage =
+          LLM_OrgSubscription[orgInfo?.subscription as OrgSubscription];
         const validatePackageOrgResponse = await validatePackageOrg(
           file,
           orgInfo
         );
         if (validatePackageOrgResponse) {
           const serviceResponse =
-            await mindmapService.createNewMindmapByUploadFile(values, file);
+            await mindmapService.createNewMindmapByUploadFile(
+              values,
+              file,
+              llmPackage as LLMModel
+            );
           res.status(statusCode.OK).json({
             status: statusCode.OK,
             message: "Create mindmap by upload file successfully",
@@ -44,10 +55,16 @@ export class MindmapController {
           });
         }
       } else if (!file || (file && values.type === MindmapType.CREATIVE)) {
+        const orgInfo = getOrgFromUser(user, values.orgId);
+        const llmPackage =
+          LLM_OrgSubscription[orgInfo?.subscription as OrgSubscription];
         if (file && values.type === MindmapType.CREATIVE) {
           await unlink(file.path);
         }
-        const serviceResponse = await mindmapService.createMindmap(values);
+        const serviceResponse = await mindmapService.createMindmap(
+          values,
+          llmPackage as LLMModel
+        );
         res.status(statusCode.OK).json({
           status: statusCode.OK,
           message: "Create mindmap successfully",

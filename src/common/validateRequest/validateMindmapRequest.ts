@@ -2,17 +2,8 @@ import { DocumentTypeRequest, LLMModel, MindmapType } from "@/constant";
 import { Request } from "express";
 
 export function validateMindmapRequest(req: Request) {
-  const {
-    llm,
-    type,
-    depth,
-    child,
-    orgId,
-    prompt,
-    docType,
-    docUrl,
-    documentsId,
-  } = req.body;
+  const { type, depth, child, orgId, prompt, docType, docUrl, documentsId } =
+    req.body;
   const depthNum = Number(depth);
   const childNum = Number(child);
   const file = req.file;
@@ -20,7 +11,6 @@ export function validateMindmapRequest(req: Request) {
 
   // Kiểm tra các trường bắt buộc
   if (!orgId) missingFields.push("orgId");
-  if (!llm) missingFields.push("llm");
   if (!type) missingFields.push("type");
   if (depth === undefined || depth === null) missingFields.push("depth");
   if (child === undefined || child === null) missingFields.push("child");
@@ -55,13 +45,6 @@ export function validateMindmapRequest(req: Request) {
   if (!validTypes.includes(type)) {
     throw new Error(
       `Invalid value for type. Expected one of: ${validTypes.join(", ")}`
-    );
-  }
-
-  const validLlmTypes = Object.values(LLMModel);
-  if (!validLlmTypes.includes(llm)) {
-    throw new Error(
-      `Invalid value for llm. Expected one of: ${validLlmTypes.join(", ")}`
     );
   }
 

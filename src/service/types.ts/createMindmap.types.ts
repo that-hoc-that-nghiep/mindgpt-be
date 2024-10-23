@@ -10,7 +10,6 @@ export interface CreativeRequestAI {
 }
 
 export interface CreateMinmapByUploadFileRequest {
-  llm: LLMModel;
   type: MindmapType;
   orgId: string;
   depth: number;
@@ -18,7 +17,6 @@ export interface CreateMinmapByUploadFileRequest {
 }
 
 export interface CreateRequest {
-  llm: LLMModel;
   type: MindmapType;
   prompt?: string;
   docType?: DocumentTypeRequest;
