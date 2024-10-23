@@ -3,7 +3,7 @@ import {
   MindmapResponeAIHub,
   NodeMindmap,
 } from "@/respository/mindmapRepository";
-import { MindmapType } from "@/constant";
+import { MindmapType, RoleChat } from "@/constant";
 
 export const parseMermaidToJson = async (
   responseData: string,
@@ -93,7 +93,16 @@ export const parseMermaidToJson = async (
     documentsId: documentsId || [],
     document: document || {},
     orgId: orgId,
-    conversation: [],
+    conversation: [
+      {
+        role: RoleChat.USER,
+        content: "Hello",
+      },
+      {
+        role: RoleChat.AI,
+        content: "Hi",
+      },
+    ],
   };
 
   return jsonData;

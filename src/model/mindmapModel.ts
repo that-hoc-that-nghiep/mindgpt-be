@@ -3,23 +3,6 @@ import z from "zod";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 extendZodWithOpenApi(z);
 export type IMindmap = z.infer<typeof MindmapSchemaDoc>;
-export const MindmapSchemaDoc = z.object({
-  _id: z.string(),
-  title: z.string(),
-  thumbnail: z.string(),
-  prompt: z.string(),
-  document: z.object({
-    type: z.string(),
-    url: z.string(),
-  }),
-  type: z.string(),
-  nodes: z.string(),
-  edges: z.string(),
-  documentIds: z.string().array(),
-  orgId: z.string(),
-  conversation: z.string().array(),
-});
-
 export const NodesSchemaDoc = z.object({
   id: z.string(),
   label: z.string(),
@@ -36,9 +19,38 @@ export const NodesSchemaDoc = z.object({
   }),
   note: z.string(),
 });
+
+export const EdgeSchemaDoc = z.object({
+  id: z.string(),
+  from: z.string(),
+  to: z.string(),
+  name: z.string(),
+});
+export const MessageConversationDoc = z.object({
+  role: z.string(),
+  content: z.string(),
+});
+export const MindmapSchemaDoc = z.object({
+  _id: z.string(),
+  title: z.string(),
+  thumbnail: z.string(),
+  prompt: z.string(),
+  document: z.object({
+    type: z.string(),
+    url: z.string(),
+  }),
+  type: z.string(),
+  nodes: z.array(NodesSchemaDoc),
+  edges: z.array(EdgeSchemaDoc),
+  documentIds: z.string().array(),
+  orgId: z.string(),
+  conversation: z.array(MessageConversationDoc),
+});
+
 const ConversationSchema = new mongoose.Schema({
   role: {
     type: String,
+    enum: ["user", "ai"],
   },
   content: {
     type: String,
@@ -61,12 +73,10 @@ const NodesSchema = new mongoose.Schema({
     x: {
       type: Number,
       required: [true, "x is required"],
-      default: 0,
     },
     y: {
       type: Number,
       required: [true, "y is required"],
-      default: 0,
     },
   },
   text_color: {

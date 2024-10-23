@@ -27,7 +27,8 @@ export interface EdgeMindmap {
   to: string;
   name: string;
 }
-export interface Conversation {
+
+export interface MessageConversation {
   role: RoleChat;
   content: string;
 }
@@ -41,7 +42,7 @@ export interface MindmapResponeAIHub {
   documentsId: string[];
   document: {};
   orgId: string;
-  conversation: Conversation[];
+  conversation: MessageConversation[];
 }
 export class MindmapRepository {
   createNewMindmap = async (values: MindmapResponeAIHub) => {
@@ -76,7 +77,7 @@ export class MindmapRepository {
     }).save();
 
     const populatedMindmap = await MindmapModel.findById(resMindmap._id)
-      .select("-_id -__v")
+      .select("-__v")
       .populate({
         path: "nodes",
         select: "-_id -__v",

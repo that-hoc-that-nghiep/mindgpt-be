@@ -27,5 +27,5 @@ export const ServiceResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
     status: z.number(),
     message: z.string(),
-    responseObject: dataSchema.optional(),
+    data: dataSchema.optional(),
   });
