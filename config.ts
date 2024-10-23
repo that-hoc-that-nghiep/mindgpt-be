@@ -9,6 +9,7 @@ dotenv.config({ path: path.resolve(__dirname, "./.env") });
 // as someone could skip these varibales or not setup a .env file at all
 
 interface ENV {
+  SERVICE_HOST: string | undefined;
   API_AUTH: string | undefined;
   API_MINGPT_BE: string | undefined;
   API_AI_HUB: string | undefined;
@@ -18,6 +19,7 @@ interface ENV {
 }
 
 interface Config {
+  SERVICE_HOST: string;
   API_AUTH: string;
   API_MINGPT_BE: string;
   API_AI_HUB: string;
@@ -30,6 +32,7 @@ interface Config {
 
 const getConfig = (): ENV => {
   return {
+    SERVICE_HOST: process.env.SERVICE_HOST,
     API_AUTH: process.env.API_AUTH,
     API_MINGPT_BE: process.env.API_MINGPT_BE,
     API_AI_HUB: process.env.API_AI_HUB,

@@ -26,7 +26,7 @@ interface User {
 }
 
 export const getBearerToken = (req: Request) => {
-  const bearerToken = req.headers.authorization;
+  const bearerToken = req.headers.authorization?.split(" ")[1];
   if (!bearerToken) {
     throw new Error("Unauthorized");
   }

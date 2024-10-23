@@ -1,6 +1,7 @@
 import {
   DocumentTypeRequest,
   FILE_LIMITS,
+  LLMModel,
   MindmapType,
   OrgSubscription,
 } from "@/constant";
@@ -30,7 +31,7 @@ export class MindmapService {
   constructor(repository: MindmapRepository = new MindmapRepository()) {
     this.mindmapRepository = repository;
   }
-  async createMindmap(values: CreateRequest) {
+  async createMindmap(values: CreateRequest, llmPackage: LLMModel) {
     try {
       const parseDocumentsId =
         values.documentsId?.replace(/[\[\]\"]/g, "").split(",") || [];
@@ -40,7 +41,7 @@ export class MindmapService {
       switch (values.type) {
         case MindmapType.CREATIVE:
           const requestAI: CreativeRequestAI = {
-            llm: values.llm,
+            llm: llmPackage,
             type: values.type,
             prompt: values.prompt || "",
             documentsId: parseDocumentsId,
@@ -56,7 +57,7 @@ export class MindmapService {
           switch (values.docType) {
             case DocumentTypeRequest.PDF:
               const requestAIByPdf: SummaryRequestAI = {
-                llm: values.llm,
+                llm: llmPackage,
                 type: values.type,
                 document: {
                   type: values.docType,
@@ -78,7 +79,7 @@ export class MindmapService {
               return newMindmapByLinkPdf;
             case DocumentTypeRequest.WEB:
               const requestAIByWeb: SummaryRequestAI = {
-                llm: values.llm,
+                llm: llmPackage,
                 type: values.type,
                 document: {
                   type: values.docType,
@@ -97,7 +98,7 @@ export class MindmapService {
               return newMindmapByWeb;
             case DocumentTypeRequest.YOUTUBE:
               const requestAIByYoutube: SummaryRequestAI = {
-                llm: values.llm,
+                llm: llmPackage,
                 type: values.type,
                 document: {
                   type: values.docType,
@@ -130,7 +131,8 @@ export class MindmapService {
 
   async createNewMindmapByUploadFile(
     values: CreateMinmapByUploadFileRequest,
-    filePdf: any
+    filePdf: any,
+    llmPackage: LLMModel
   ) {
     try {
       const fileData = await fs.readFile(filePdf.path);
@@ -150,7 +152,7 @@ export class MindmapService {
         .getPublicUrl(fullPathSupabase).data.publicUrl;
       await unlink(filePdf.path);
       const requestAIHubFile: SummaryRequestAI = {
-        llm: values.llm,
+        llm: llmPackage,
         type: values.type,
         document: {
           type: DocumentTypeRequest.PDF,

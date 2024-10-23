@@ -46,6 +46,12 @@ export const FILE_LIMITS: Record<string, number> = {
   pro: 15 * 1024 * 1024,
 };
 
+export const LLM_OrgSubscription: Record<string, string> = {
+  free: LLMModel.GPT_4o,
+  plus: LLMModel.GPT_4o,
+  pro: LLMModel.GPT_4o,
+};
+
 export const sizeMindmap = {
   depth: 4,
   child: 3,
