@@ -82,6 +82,27 @@ export class MindmapController {
     }
   };
 
+  getMindmapById: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    const bearerToken = getBearerToken(req);
+    const user = await getUserInfo(bearerToken);
+    const { mindmapId } = req.params;
+    const mindmap = await mindmapService.getMindmapById(mindmapId);
+    res.status(statusCode.OK).json({
+      status: statusCode.OK,
+      message: "Get mindmap by id successfully",
+      data: mindmap,
+    });
+    try {
+    } catch (error) {
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+        status: statusCode.INTERNAL_SERVER_ERROR,
+        message: (error as Error).message,
+      });
+    }
+  };
   getAllMindmaps: RequestHandler = async (
     req: Request,
     res: Response

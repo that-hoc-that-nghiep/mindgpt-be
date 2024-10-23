@@ -157,9 +157,17 @@ mindmapRouter.post(
 
 mindmapRegistry.registerPath({
   method: "get",
+  path: "/mindmap/:mindmapId",
+  tags: ["Mindmap"],
+  responses: createApiResponse(MindmapSchemaDoc, "Success"),
+});
+mindmapRouter.get("/:mindmapId", mindmapController.getMindmapById);
+
+mindmapRegistry.registerPath({
+  method: "get",
   path: "/mindmap/:orgId/all",
   tags: ["Mindmap"],
-  responses: {},
+  responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
 });
 mindmapRouter.get("/:orgId/all", mindmapController.getAllMindmaps);
 

@@ -100,19 +100,34 @@ export class MindmapRepository {
     limit: number,
     keyword?: string
   ) => {
-    const searchCondition = {
-      ...(keyword ? { title: { $regex: keyword, $options: "i" } } : {}),
+    const filter = {
       orgId: orgId,
+      title: { $regex: keyword, $options: "i" },
     };
-    const mindmaps = await MindmapModel.find(searchCondition)
-      .limit(limit)
-      .skip(skip)
-      .select("-__v")
-      .exec();
 
-    const total = await MindmapModel.countDocuments(searchCondition);
+    const mindmaps = await MindmapModel.find(filter).skip(skip).limit(limit);
 
+    const total = await MindmapModel.countDocuments(filter);
     return { mindmaps, total };
+  };
+
+  getMindmapById = async (mindmapId: string) => {
+    const mindmap = await MindmapModel.findById(mindmapId)
+      .select("-__v")
+      .populate({
+        path: "nodes",
+        select: "-__v",
+      })
+      .populate({
+        path: "edges",
+        select: "-__v",
+      })
+      .populate({
+        path: "conversation",
+        select: "-__v",
+      })
+      .exec();
+    return mindmap;
   };
 
   deleteMindmap = async (mindmapId: string) => {

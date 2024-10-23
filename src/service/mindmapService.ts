@@ -225,6 +225,16 @@ export class MindmapService {
     }
   }
 
+  async getMindmapById(mindmapId: string) {
+    try {
+      const mindmap = await this.mindmapRepository.getMindmapById(mindmapId);
+      return mindmap;
+    } catch (error) {
+      const errorMessage = `Error getting mindmap: ${(error as Error).message}`;
+      console.log(errorMessage);
+      throw new Error(errorMessage);
+    }
+  }
   async deleteMindmap(mindmapId: string) {
     const result = await this.mindmapRepository.deleteMindmap(mindmapId);
     return result;
