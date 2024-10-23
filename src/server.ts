@@ -6,7 +6,7 @@ import db from "@/database/dbConnect"
 dotenv.config()
 
 const PORT = Number(process.env.PORT) || 9999
-const HOSTNAME = "localhost"
+const HOSTNAME = "0.0.0.0"
 
 // Connect to the database
 db.connect()
