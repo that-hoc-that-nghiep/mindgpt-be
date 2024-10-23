@@ -56,6 +56,5 @@ jobs:
 
                     sudo docker run -d --name ${{ vars.SERVICE_NAME }} \
                       --env-file ~/mindgpt/mindgpt-be/.env \
-                      --network bridge \ 
                       -p ${{ vars.SERVICE_PORT }}:${{ vars.SERVICE_PORT }} ${{ secrets.DOCKER_USERNAME }}/${{ vars.SERVICE_NAME }}:latest
                   EOF
