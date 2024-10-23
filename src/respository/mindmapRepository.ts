@@ -1,4 +1,4 @@
-import { DocumentTypeUpload, MindmapType, RoleChat } from "@/constant";
+import { MindmapType, RoleChat } from "@/constant";
 import {
   ConversationModel,
   EdgesModel,
@@ -39,6 +39,7 @@ export interface MindmapResponeAIHub {
   nodes: NodeMindmap[];
   edges: EdgeMindmap[];
   documentsId: string[];
+  document: {};
   orgId: string;
   conversation: Conversation[];
 }
@@ -68,11 +69,12 @@ export class MindmapRepository {
       type: values.type,
       nodes: savedNodes,
       edges: savedEdges,
+      document: values.document,
       documentsId: values.documentsId,
       orgId: values.orgId,
       conversation: conversationId,
     }).save();
-    
+
     const populatedMindmap = await MindmapModel.findById(resMindmap._id)
       .select("-_id -__v")
       .populate({
@@ -89,6 +91,68 @@ export class MindmapRepository {
       })
       .exec();
     return populatedMindmap;
+  };
+
+  getMindmapsWithPagination = async (skip: number, limit: number) => {
+    console.warn(skip + " - " + limit);
+
+    const mindmaps = await MindmapModel.find({})
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "nodes",
+        select: "-_id -__v",
+      })
+      .populate({
+        path: "edges",
+        select: "-_id -__v",
+      })
+      .populate({
+        path: "conversation",
+        select: "-_id -__v",
+      })
+      .exec();
+
+    // Đếm tổng số mindmaps
+    const total = await MindmapModel.countDocuments();
+
+    return { mindmaps, total };
+  };
+
+  getMindmapsByOrgId = async (skip: number, limit: number, orgId: string) => {
+    const mindmaps = await MindmapModel.find({ orgId: orgId })
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "nodes",
+        select: "-_id -__v",
+      })
+      .populate({
+        path: "edges",
+        select: "-_id -__v",
+      })
+      .populate({
+        path: "conversation",
+        select: "-_id -__v",
+      })
+      .exec();
+
+    // Đếm tổng số mindmaps
+    const total = await MindmapModel.countDocuments();
+
+    return { mindmaps, total };
+  };
+
+  deleteMindmap = async (mindmapId: string) => {
+    // Attempt to delete the mindmap with the given ID
+    const result = await MindmapModel.deleteOne({ _id: mindmapId });
+
+    // Check if a mindmap was deleted
+    if (result.deletedCount === 0) {
+      throw new Error(`Mindmap with ID ${mindmapId} not found.`);
+    } else {
+      return result.acknowledged;
+    }
   };
 }
 
