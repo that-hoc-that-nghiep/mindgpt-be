@@ -128,6 +128,7 @@ export class MindmapController {
         status: statusCode.OK,
         message: "Get all mindmaps successfully",
         data: mindmaps,
+        v: values,
       });
     } catch (error) {
       res.status(statusCode.INTERNAL_SERVER_ERROR).json({

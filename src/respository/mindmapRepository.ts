@@ -96,16 +96,20 @@ export class MindmapRepository {
 
   getAllMindmaps = async (
     orgId: string,
-    skip: number,
     limit: number,
+    skip: number,
     keyword?: string
   ) => {
-    const filter = {
+    const filter: Record<string, any> = {
       orgId: orgId,
-      title: { $regex: keyword, $options: "i" },
     };
-
-    const mindmaps = await MindmapModel.find(filter).skip(skip).limit(limit);
+    if (keyword) {
+      filter.title = { $regex: keyword, $options: "i" };
+    }
+    const mindmaps = await MindmapModel.find(filter)
+      .skip(skip)
+      .limit(limit)
+      .select("-__v");
 
     const total = await MindmapModel.countDocuments(filter);
     return { mindmaps, total };
