@@ -116,22 +116,26 @@ export class MindmapRepository {
   };
 
   getMindmapById = async (mindmapId: string) => {
-    const mindmap = await MindmapModel.findById(mindmapId)
-      .select("-__v")
-      .populate({
-        path: "nodes",
-        select: "-__v",
-      })
-      .populate({
-        path: "edges",
-        select: "-__v",
-      })
-      .populate({
-        path: "conversation",
-        select: "-__v",
-      })
-      .exec();
-    return mindmap;
+    try {
+      const mindmap = await MindmapModel.findById(mindmapId)
+        .select("-__v")
+        .populate({
+          path: "nodes",
+          select: "-__v",
+        })
+        .populate({
+          path: "edges",
+          select: "-__v",
+        })
+        .populate({
+          path: "conversation",
+          select: "-__v",
+        })
+        .exec();
+      return mindmap;
+    } catch (error) {
+      throw new Error(`Mindmap with ID ${mindmapId} not found.`);
+    }
   };
 
   deleteMindmap = async (mindmapId: string) => {

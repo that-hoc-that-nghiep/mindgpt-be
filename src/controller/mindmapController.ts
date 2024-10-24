@@ -89,8 +89,15 @@ export class MindmapController {
     try {
       const bearerToken = getBearerToken(req);
       const user = await getUserInfo(bearerToken);
-      const { mindmapId } = req.params;
-      const mindmap = await mindmapService.getMindmapById(mindmapId);
+      const { orgId, mindmapId } = req.params;
+      if (!isUserInOrg(user, orgId)) {
+        res.status(statusCode.UNAUTHORIZED).json({
+          status: statusCode.UNAUTHORIZED,
+          message: "User is not in the organization",
+        });
+        return;
+      }
+      const mindmap = await mindmapService.getMindmapById(mindmapId, orgId);
       res.status(statusCode.OK).json({
         status: statusCode.OK,
         message: "Get mindmap by id successfully",

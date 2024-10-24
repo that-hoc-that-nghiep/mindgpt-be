@@ -156,11 +156,11 @@ mindmapRouter.post(
 mindmapRegistry.registerPath({
   method: "get",
   description: "Get Mindmap by ID",
-  path: "/mindmap/:mindmapId",
+  path: "/mindmap/:orgId/:mindmapId",
   tags: ["Mindmap"],
   responses: createApiResponse(MindmapGetByIdSchemaDoc, "Success"),
 });
-mindmapRouter.get("/:mindmapId", mindmapController.getMindmapById);
+mindmapRouter.get("/:orgId/:mindmapId", mindmapController.getMindmapById);
 
 mindmapRegistry.registerPath({
   method: "get",
