@@ -3,7 +3,11 @@ import { mindmapController } from "@/controller/mindmapController";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import z from "zod";
-import { MindmapSchemaDoc } from "@/model/mindmapModel";
+import {
+  MindmapGetByIdSchemaDoc,
+  MindmapGetSchemaDoc,
+  MindmapSchemaDoc,
+} from "@/model/mindmapModel";
 import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
 import { create } from "domain";
 
@@ -63,12 +67,6 @@ mindmapRegistry.registerPath({
         schema: {
           type: "object",
           properties: {
-            llm: {
-              type: "string",
-              description:
-                "The LLM model to be used. Two options: gpt-4o and gpt-4o-mini. Should choose gpt-4o by default",
-              example: "gpt-4o",
-            },
             type: {
               type: "string",
               description: "Type of the Mindmap. Options: creative, summary",
@@ -147,7 +145,7 @@ mindmapRegistry.registerPath({
     },
     required: true,
   },
-  responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
+  responses: createApiResponse(MindmapSchemaDoc, "Success"),
 });
 mindmapRouter.post(
   "/create",
@@ -157,17 +155,20 @@ mindmapRouter.post(
 
 mindmapRegistry.registerPath({
   method: "get",
+  description: "Get Mindmap by ID",
   path: "/mindmap/:mindmapId",
   tags: ["Mindmap"],
-  responses: createApiResponse(MindmapSchemaDoc, "Success"),
+  responses: createApiResponse(MindmapGetByIdSchemaDoc, "Success"),
 });
 mindmapRouter.get("/:mindmapId", mindmapController.getMindmapById);
 
 mindmapRegistry.registerPath({
   method: "get",
+  description:
+    "Get Mindmap by ID with request query limit, skip, keyword. Note that when returning 'all', it includes the set of nodes, edges, and conversations, whereas it only returns a set of objectIds in string format. !",
   path: "/mindmap/:orgId/all",
   tags: ["Mindmap"],
-  responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
+  responses: createApiResponse(MindmapGetSchemaDoc, "Success"),
 });
 mindmapRouter.get("/:orgId/all", mindmapController.getAllMindmaps);
 
