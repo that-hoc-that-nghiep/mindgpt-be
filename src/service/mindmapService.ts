@@ -225,9 +225,10 @@ export class MindmapService {
     }
   }
 
-  async getMindmapById(mindmapId: string) {
+  async getMindmapById(mindmapId: string, orgId: string) {
     try {
       const mindmap = await this.mindmapRepository.getMindmapById(mindmapId);
+
       return mindmap;
     } catch (error) {
       const errorMessage = `Error getting mindmap: ${(error as Error).message}`;
