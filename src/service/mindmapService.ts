@@ -19,7 +19,6 @@ import {
 } from "./types.ts/createMindmap.types";
 import { Organization } from "./authService";
 import { unlink } from "fs/promises";
-import { GetMindmapByIdResponse } from "./types.ts/getMindmapById";
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
