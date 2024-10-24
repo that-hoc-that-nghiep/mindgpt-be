@@ -1,7 +1,6 @@
 import { MindmapType } from "@/constant";
 
 export interface Node {
-  _id: string;
   id: string;
   label: string;
   level: number;
@@ -19,7 +18,6 @@ export interface Node {
 }
 
 export interface Edge {
-  _id: string;
   id: string;
   from: string;
   to: string;

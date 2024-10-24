@@ -167,4 +167,32 @@ mindmapRegistry.registerPath({
 });
 mindmapRouter.get("/:orgId", mindmapController.getAllMindmaps);
 
-mindmapRouter.delete("/delete", mindmapController.deleteMindmaps);
+mindmapRegistry.registerPath({
+  method: "delete",
+  description: "Delete Mindmap by ID",
+  path: "/mindmap/:orgId/:mindmapId",
+  tags: ["Mindmap"],
+  responses: {
+    204: {
+      description: "Delete mindmap successfully",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              status: {
+                type: "number",
+                example: 200,
+              },
+              message: {
+                type: "string",
+                example: "Delete mindmap successfully",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+});
+mindmapRouter.delete("/:orgId/:mindmapId", mindmapController.deleteMindmap);

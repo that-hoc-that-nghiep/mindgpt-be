@@ -144,6 +144,9 @@ export class MindmapRepository {
           select: "-_id -__v",
         })
         .exec();
+      if (mindmap === null) {
+        throw new Error(`Mindmap with ID ${mindmapId} not found.`);
+      }
       return mindmap;
     } catch (error) {
       throw new Error(`Mindmap with ID ${mindmapId} not found.`);
@@ -152,15 +155,50 @@ export class MindmapRepository {
 
   deleteMindmap = async (mindmapId: string) => {
     try {
-      const result = await MindmapModel.deleteOne({ _id: mindmapId });
-      if (result.deletedCount === 0) {
+      const mindmap = await MindmapModel.findById(mindmapId);
+
+      if (!mindmap) {
         throw new Error(`Mindmap with ID ${mindmapId} not found.`);
       }
-      return result.acknowledged;
+
+      const mindmapResult = await MindmapModel.deleteOne({ _id: mindmapId });
+
+      if (!mindmapResult.acknowledged) {
+        throw new Error("Fail to delete mindmap.");
+      }
+
+      const nodeResult = await NodesModel.deleteMany({
+        _id: { $in: mindmap.nodes },
+      });
+      if (!nodeResult.acknowledged) {
+        throw new Error("Fail to delete nodes.");
+      }
+
+      const edgeResult = await EdgesModel.deleteMany({
+        _id: { $in: mindmap.edges },
+      });
+      if (!edgeResult.acknowledged) {
+        throw new Error("Fail to delete edges.");
+      }
+
+      const conversationResult = await ConversationModel.deleteMany({
+        _id: { $in: mindmap.conversation },
+      });
+      if (!conversationResult.acknowledged) {
+        throw new Error("Fail to delete conversation.");
+      }
+      return true;
     } catch (error) {
-      const errorMessage = `${(error as Error).message}`;
-      console.log(errorMessage);
-      throw new Error(errorMessage);
+      if (error instanceof Error) {
+        if (error.name === "CastError" && (error as any).kind === "ObjectId") {
+          throw new Error(`Invalid mindmap ID: ${mindmapId}`);
+        }
+        throw new Error(
+          `Error deleting mindmap and related data: ${error.message}`
+        );
+      } else {
+        throw new Error("An unknown error occurred");
+      }
     }
   };
 }
