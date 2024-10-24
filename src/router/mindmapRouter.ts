@@ -59,7 +59,7 @@ export const mindmapRouter = express.Router();
 export const mindmapRegistry = new OpenAPIRegistry();
 mindmapRegistry.registerPath({
   method: "post",
-  path: "/mindmap/create",
+  path: "/mindmap/:orgId",
   tags: ["Mindmap"],
   requestBody: {
     content: {
@@ -81,11 +81,6 @@ mindmapRegistry.registerPath({
               type: "integer",
               description: "Number of child nodes. greater than 0",
               example: 3,
-            },
-            orgId: {
-              type: "string",
-              description: "Organization ID",
-              example: "org_123",
             },
             prompt: {
               type: "string",
@@ -148,7 +143,7 @@ mindmapRegistry.registerPath({
   responses: createApiResponse(MindmapSchemaDoc, "Success"),
 });
 mindmapRouter.post(
-  "/create",
+  "/:orgId",
   uploadFileMiddleware().single("filePdf"),
   mindmapController.createMindmap
 );

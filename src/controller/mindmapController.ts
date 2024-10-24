@@ -26,6 +26,7 @@ export class MindmapController {
       const bearerToken = getBearerToken(req);
       const user = await getUserInfo(bearerToken);
       const values = validateMindmapRequest(req);
+
       if (!isUserInOrg(user, values.orgId)) {
         res.status(statusCode.UNAUTHORIZED).json({
           status: statusCode.UNAUTHORIZED,
