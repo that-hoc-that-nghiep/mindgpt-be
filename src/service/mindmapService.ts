@@ -206,14 +206,14 @@ export class MindmapService {
   async getAllMindmaps(
     orgId: string,
     limit: number,
-    skip: number,
+    page: number,
     keyword: string
   ) {
     try {
       const mindmaps = await this.mindmapRepository.getAllMindmaps(
         orgId,
         limit,
-        skip,
+        page,
         keyword
       );
       return mindmaps;
