@@ -59,7 +59,7 @@ export const mindmapRouter = express.Router();
 export const mindmapRegistry = new OpenAPIRegistry();
 mindmapRegistry.registerPath({
   method: "post",
-  path: "/mindmap/create",
+  path: "/mindmap/:orgId",
   tags: ["Mindmap"],
   requestBody: {
     content: {
@@ -81,11 +81,6 @@ mindmapRegistry.registerPath({
               type: "integer",
               description: "Number of child nodes. greater than 0",
               example: 3,
-            },
-            orgId: {
-              type: "string",
-              description: "Organization ID",
-              example: "org_123",
             },
             prompt: {
               type: "string",
@@ -148,7 +143,7 @@ mindmapRegistry.registerPath({
   responses: createApiResponse(MindmapSchemaDoc, "Success"),
 });
 mindmapRouter.post(
-  "/create",
+  "/:orgId",
   uploadFileMiddleware().single("filePdf"),
   mindmapController.createMindmap
 );
@@ -156,20 +151,20 @@ mindmapRouter.post(
 mindmapRegistry.registerPath({
   method: "get",
   description: "Get Mindmap by ID",
-  path: "/mindmap/:mindmapId",
+  path: "/mindmap/:orgId/:mindmapId",
   tags: ["Mindmap"],
   responses: createApiResponse(MindmapGetByIdSchemaDoc, "Success"),
 });
-mindmapRouter.get("/:mindmapId", mindmapController.getMindmapById);
+mindmapRouter.get("/:orgId/:mindmapId", mindmapController.getMindmapById);
 
 mindmapRegistry.registerPath({
   method: "get",
   description:
     "Get Mindmap by ID with request query limit, skip, keyword. Note that when returning 'all', it includes the set of nodes, edges, and conversations, whereas it only returns a set of objectIds in string format. !",
-  path: "/mindmap/:orgId/all",
+  path: "/mindmap/:orgId",
   tags: ["Mindmap"],
   responses: createApiResponse(MindmapGetSchemaDoc, "Success"),
 });
-mindmapRouter.get("/:orgId/all", mindmapController.getAllMindmaps);
+mindmapRouter.get("/:orgId", mindmapController.getAllMindmaps);
 
 mindmapRouter.delete("/delete", mindmapController.deleteMindmaps);

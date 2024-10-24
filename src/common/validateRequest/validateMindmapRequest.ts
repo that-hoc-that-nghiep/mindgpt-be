@@ -2,15 +2,14 @@ import { DocumentTypeRequest, LLMModel, MindmapType } from "@/constant";
 import { Request } from "express";
 
 export function validateMindmapRequest(req: Request) {
-  const { type, depth, child, orgId, prompt, docType, docUrl, documentsId } =
-    req.body;
+  const { type, depth, child, prompt, docType, docUrl, documentsId } = req.body;
   const depthNum = Number(depth);
   const childNum = Number(child);
   const file = req.file;
   const missingFields = [];
+  const { orgId } = req.params;
 
   // Kiểm tra các trường bắt buộc
-  if (!orgId) missingFields.push("orgId");
   if (!type) missingFields.push("type");
   if (depth === undefined || depth === null) missingFields.push("depth");
   if (child === undefined || child === null) missingFields.push("child");
@@ -46,10 +45,6 @@ export function validateMindmapRequest(req: Request) {
     throw new Error(
       `Invalid value for type. Expected one of: ${validTypes.join(", ")}`
     );
-  }
-
-  if (typeof orgId !== "string") {
-    throw new Error("Invalid value for orgId. Expected a string");
   }
 
   if (typeof depthNum !== "number" || depthNum < 0) {
@@ -131,5 +126,5 @@ export function validateMindmapRequest(req: Request) {
     }
   }
   // Nếu tất cả đều hợp lệ, trả về thành công (true)
-  return { ...req.body };
+  return { ...req.body, orgId };
 }
