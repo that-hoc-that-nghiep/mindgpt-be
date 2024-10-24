@@ -15,6 +15,7 @@ import {
 } from "@/constant";
 import { validateMindmapRequest } from "@/common/validateRequest/validateMindmapRequest";
 import { unlink } from "fs/promises";
+import { validateGetAllMindmapsRequest } from "@/common/validateRequest/validateGetMinmaprequest";
 
 export class MindmapController {
   createMindmap: RequestHandler = async (
@@ -81,24 +82,58 @@ export class MindmapController {
     }
   };
 
-  getMindmaps: RequestHandler = async (
+  getMindmapById: RequestHandler = async (
     req: Request,
     res: Response
   ): Promise<any> => {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const orgId = req.params.orgId as string;
-      const { mindmaps, total, totalPages, currentPage } =
-        await mindmapService.getMindmapsWithPagination(page, orgId);
-
-      res.status(200).json({
-        mindmaps,
-        total, // Tổng số mindmap
-        totalPages, // Tổng số trang
-        currentPage, // Trang hiện tại
+      const bearerToken = getBearerToken(req);
+      const user = await getUserInfo(bearerToken);
+      const { mindmapId } = req.params;
+      const mindmap = await mindmapService.getMindmapById(mindmapId);
+      res.status(statusCode.OK).json({
+        status: statusCode.OK,
+        message: "Get mindmap by id successfully",
+        data: mindmap,
       });
     } catch (error) {
-      res.status(500).json({ message: error });
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+        status: statusCode.INTERNAL_SERVER_ERROR,
+        message: (error as Error).message,
+      });
+    }
+  };
+  getAllMindmaps: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    try {
+      const bearerToken = getBearerToken(req);
+      const user = await getUserInfo(bearerToken);
+      const values = validateGetAllMindmapsRequest(req);
+      if (!isUserInOrg(user, values.orgId)) {
+        res.status(statusCode.UNAUTHORIZED).json({
+          status: statusCode.UNAUTHORIZED,
+          message: "User is not in the organization",
+        });
+        return;
+      }
+      const mindmaps = await mindmapService.getAllMindmaps(
+        values.orgId,
+        values.limit,
+        values.skip,
+        values.keyword
+      );
+      res.status(statusCode.OK).json({
+        status: statusCode.OK,
+        message: "Get all mindmaps successfully",
+        data: mindmaps,
+      });
+    } catch (error) {
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+        status: statusCode.INTERNAL_SERVER_ERROR,
+        message: (error as Error).message,
+      });
     }
   };
 
