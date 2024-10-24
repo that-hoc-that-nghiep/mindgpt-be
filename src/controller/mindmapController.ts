@@ -129,7 +129,7 @@ export class MindmapController {
       const mindmaps = await mindmapService.getAllMindmaps(
         values.orgId,
         values.limit,
-        values.skip,
+        values.page,
         values.keyword
       );
       res.status(statusCode.OK).json({
