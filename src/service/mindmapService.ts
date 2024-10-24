@@ -225,7 +225,7 @@ export class MindmapService {
     }
   }
 
-  async getMindmapById(mindmapId: string, orgId: string) {
+  async getMindmapById(mindmapId: string) {
     try {
       const mindmap = await this.mindmapRepository.getMindmapById(mindmapId);
 
@@ -237,8 +237,9 @@ export class MindmapService {
     }
   }
   async deleteMindmap(mindmapId: string) {
-    const result = await this.mindmapRepository.deleteMindmap(mindmapId);
-    return result;
+    const mindmapGetById = await this.getMindmapById(mindmapId);
+    await this.mindmapRepository.deleteMindmap(mindmapId);
+    // if(mindmapGetById.type === MindmapType.SUMMARY)
   }
 }
 
@@ -297,5 +298,10 @@ export const handleParseMermaid = async (
     "Error call api ai hub with " + values.type + " docType " + values.docType
   );
 };
+export function getFileNameFromUrl(url: string): string {
+  const parts = url.split("/");
+  const fileNameWithExtension = parts.pop()?.split("?")[0] || "";
+  return fileNameWithExtension;
+}
 
 export const mindmapService = new MindmapService();
