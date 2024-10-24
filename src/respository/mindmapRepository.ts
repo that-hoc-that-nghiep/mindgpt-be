@@ -105,7 +105,7 @@ export class MindmapRepository {
   getAllMindmaps = async (
     orgId: string,
     limit: number,
-    skip: number,
+    page: number,
     keyword?: string
   ) => {
     try {
@@ -115,6 +115,7 @@ export class MindmapRepository {
       if (keyword) {
         filter.title = { $regex: keyword, $options: "i" };
       }
+      const skip = (page - 1) * limit;
       const mindmaps = await MindmapModel.find(filter)
         .skip(skip)
         .limit(limit)
