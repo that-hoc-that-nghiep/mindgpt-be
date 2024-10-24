@@ -3,7 +3,7 @@ import { mindmapController } from "@/controller/mindmapController";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import z from "zod";
-import { MindmapSchemaDoc } from "@/model/mindmapModel";
+import { MindmapGetSchemaDoc, MindmapSchemaDoc } from "@/model/mindmapModel";
 import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
 import { create } from "domain";
 
@@ -63,12 +63,6 @@ mindmapRegistry.registerPath({
         schema: {
           type: "object",
           properties: {
-            llm: {
-              type: "string",
-              description:
-                "The LLM model to be used. Two options: gpt-4o and gpt-4o-mini. Should choose gpt-4o by default",
-              example: "gpt-4o",
-            },
             type: {
               type: "string",
               description: "Type of the Mindmap. Options: creative, summary",
@@ -147,7 +141,7 @@ mindmapRegistry.registerPath({
     },
     required: true,
   },
-  responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
+  responses: createApiResponse(MindmapSchemaDoc, "Success"),
 });
 mindmapRouter.post(
   "/create",
@@ -159,7 +153,7 @@ mindmapRegistry.registerPath({
   method: "get",
   path: "/mindmap/:mindmapId",
   tags: ["Mindmap"],
-  responses: createApiResponse(MindmapSchemaDoc, "Success"),
+  responses: createApiResponse(MindmapGetSchemaDoc, "Success"),
 });
 mindmapRouter.get("/:mindmapId", mindmapController.getMindmapById);
 
@@ -167,7 +161,7 @@ mindmapRegistry.registerPath({
   method: "get",
   path: "/mindmap/:orgId/all",
   tags: ["Mindmap"],
-  responses: createApiResponse(z.array(MindmapSchemaDoc), "Success"),
+  responses: createApiResponse(MindmapGetSchemaDoc, "Success"),
 });
 mindmapRouter.get("/:orgId/all", mindmapController.getAllMindmaps);
 
