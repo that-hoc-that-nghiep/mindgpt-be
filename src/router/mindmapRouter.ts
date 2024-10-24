@@ -3,7 +3,11 @@ import { mindmapController } from "@/controller/mindmapController";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import z from "zod";
-import { MindmapGetSchemaDoc, MindmapSchemaDoc } from "@/model/mindmapModel";
+import {
+  MindmapGetByIdSchemaDoc,
+  MindmapGetSchemaDoc,
+  MindmapSchemaDoc,
+} from "@/model/mindmapModel";
 import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
 import { create } from "domain";
 
@@ -151,14 +155,17 @@ mindmapRouter.post(
 
 mindmapRegistry.registerPath({
   method: "get",
+  description: "Get Mindmap by ID",
   path: "/mindmap/:mindmapId",
   tags: ["Mindmap"],
-  responses: createApiResponse(MindmapGetSchemaDoc, "Success"),
+  responses: createApiResponse(MindmapGetByIdSchemaDoc, "Success"),
 });
 mindmapRouter.get("/:mindmapId", mindmapController.getMindmapById);
 
 mindmapRegistry.registerPath({
   method: "get",
+  description:
+    "Get Mindmap by ID with request query limit, skip, keyword. Note that when returning 'all', it includes the set of nodes, edges, and conversations, whereas it only returns a set of objectIds in string format. !",
   path: "/mindmap/:orgId/all",
   tags: ["Mindmap"],
   responses: createApiResponse(MindmapGetSchemaDoc, "Success"),
