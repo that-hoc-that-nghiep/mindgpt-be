@@ -57,6 +57,8 @@ const bodyCreateExampleBySummaryYoutube = {
 };
 export const mindmapRouter = express.Router();
 export const mindmapRegistry = new OpenAPIRegistry();
+export const orgRegistry = new OpenAPIRegistry();
+export const orgRouter = express.Router();
 mindmapRegistry.registerPath({
   method: "post",
   path: "/mindmap/:orgId",
@@ -160,7 +162,7 @@ mindmapRouter.get("/:orgId/:mindmapId", mindmapController.getMindmapById);
 mindmapRegistry.registerPath({
   method: "get",
   description:
-    "Get Mindmap by ID with request query limit, skip, keyword. Note that when returning 'all', it includes the set of nodes, edges, and conversations, whereas it only returns a set of objectIds in string format. !",
+    "Get Mindmap by ID with request query limit, page, keyword. Note that when returning 'all', it includes the set of nodes, edges, and conversations, whereas it only returns a set of objectIds in string format. !",
   path: "/mindmap/:orgId",
   tags: ["Mindmap"],
   responses: createApiResponse(MindmapGetSchemaDoc, "Success"),
@@ -196,3 +198,33 @@ mindmapRegistry.registerPath({
   },
 });
 mindmapRouter.delete("/:orgId/:mindmapId", mindmapController.deleteMindmap);
+
+orgRegistry.registerPath({
+  method: "delete",
+  description: "Delete Organization",
+  path: "/organization/:orgId",
+  tags: ["Organization"],
+  responses: {
+    204: {
+      description: "Delete mindmap successfully",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              status: {
+                type: "number",
+                example: 200,
+              },
+              message: {
+                type: "string",
+                example: "Delete organization successfully",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+});
+orgRouter.delete("/:orgId");
