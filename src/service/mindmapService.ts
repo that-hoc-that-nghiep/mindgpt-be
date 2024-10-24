@@ -292,7 +292,9 @@ export const handleParseMermaid = async (
       count++;
     }
   } while (count < countLimit);
-  throw new Error("Error handler create mindmap");
+  throw new Error(
+    "Error call api ai hub with " + values.type + " docType " + values.docType
+  );
 };
 
 export const mindmapService = new MindmapService();
