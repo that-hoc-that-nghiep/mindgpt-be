@@ -9,13 +9,22 @@ export function validateGetAllMindmapsRequest(req: Request) {
   if (!orgId || typeof orgId !== "string") {
     throw new Error("Expected orgId to be a string");
   }
-  //   if (isNaN(validatedLimit) || validatedLimit <= 0) {
-  //     validatedLimit = 5;
-  //   }
 
-  //   if (isNaN(validatedSkip) || validatedSkip < 0) {
-  //     validatedSkip = 0;
-  //   }
+  if (limit === undefined || skip === undefined) {
+    throw new Error("Both 'limit' and 'skip' must be provided");
+  }
+
+  if (isNaN(validatedLimit) || validatedLimit <= 0) {
+    throw new Error(
+      "Expected limit to be a positive number, does not contain negative numbers"
+    );
+  }
+
+  if (isNaN(validatedSkip) || validatedSkip < 0) {
+    throw new Error(
+      "Expected limit to be a positive number, does not contain negative numbers"
+    );
+  }
 
   return {
     orgId,

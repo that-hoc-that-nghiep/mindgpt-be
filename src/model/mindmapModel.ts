@@ -30,6 +30,44 @@ export const MessageConversationDoc = z.object({
   role: z.string(),
   content: z.string(),
 });
+
+export const MindmapGetSchemaDoc = z.object({
+  mindmaps: z.object({
+    document: z.object({
+      type: z.string(), // e.g. "pdf"
+      url: z.string().url(), // URL to the document
+    }),
+    _id: z.string(), // MongoDB ID or similar
+    title: z.string(), // Title of the mindmap
+    thumbnail: z.string().optional(), // Thumbnail can be an empty string, so optional
+    prompt: z.string().optional(), // Prompt field can also be optional
+    type: z.string(), // e.g. "summary"
+    nodes: z.array(z.string()), // Array of node IDs
+    edges: z.array(z.string()), // Array of edge IDs
+    documentsId: z.array(z.string()), // Array of document IDs
+    orgId: z.string(), // Organization ID
+    conversation: z.array(z.string()), // Array of conversation IDs
+  }),
+  total: z.number().int().min(0), // Total number of mindmaps
+});
+
+export const MindmapGetByIdSchemaDoc = z.object({
+  document: z.object({
+    type: z.string(), // e.g. "pdf"
+    url: z.string().url(), // URL to the document
+  }),
+  _id: z.string(), // MongoDB ID or similar
+  title: z.string(), // Title of the mindmap
+  thumbnail: z.string().optional(), // Thumbnail can be an empty string, so optional
+  prompt: z.string().optional(), // Prompt field can also be optional
+  type: z.string(), // e.g. "summary"
+  nodes: z.array(NodesSchemaDoc),
+  edges: z.array(EdgeSchemaDoc),
+  documentsId: z.array(z.string()), // Array of document IDs
+  orgId: z.string(), // Organization ID
+  conversation: z.array(MessageConversationDoc),
+});
+
 export const MindmapSchemaDoc = z.object({
   _id: z.string(),
   title: z.string(),
