@@ -166,10 +166,10 @@ mindmapRegistry.registerPath({
   method: "get",
   description:
     "Get Mindmap by ID with request query limit, skip, keyword. Note that when returning 'all', it includes the set of nodes, edges, and conversations, whereas it only returns a set of objectIds in string format. !",
-  path: "/mindmap/:orgId/all",
+  path: "/mindmap/:orgId",
   tags: ["Mindmap"],
   responses: createApiResponse(MindmapGetSchemaDoc, "Success"),
 });
-mindmapRouter.get("/:orgId/all", mindmapController.getAllMindmaps);
+mindmapRouter.get("/:orgId", mindmapController.getAllMindmaps);
 
 mindmapRouter.delete("/delete", mindmapController.deleteMindmaps);
