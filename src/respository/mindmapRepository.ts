@@ -130,7 +130,7 @@ export class MindmapRepository {
   getMindmapById = async (mindmapId: string) => {
     try {
       const mindmap = await MindmapModel.findById(mindmapId)
-        .select("-_id -__v")
+        .select("-__v")
         .populate({
           path: "nodes",
           select: "-_id -__v",
