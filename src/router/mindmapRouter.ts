@@ -57,8 +57,7 @@ const bodyCreateExampleBySummaryYoutube = {
 };
 export const mindmapRouter = express.Router();
 export const mindmapRegistry = new OpenAPIRegistry();
-export const orgRegistry = new OpenAPIRegistry();
-export const orgRouter = express.Router();
+
 mindmapRegistry.registerPath({
   method: "post",
   path: "/mindmap/:orgId",
@@ -198,33 +197,3 @@ mindmapRegistry.registerPath({
   },
 });
 mindmapRouter.delete("/:orgId/:mindmapId", mindmapController.deleteMindmap);
-
-orgRegistry.registerPath({
-  method: "delete",
-  description: "Delete Organization",
-  path: "/organization/:orgId",
-  tags: ["Organization"],
-  responses: {
-    204: {
-      description: "Delete mindmap successfully",
-      content: {
-        "application/json": {
-          schema: {
-            type: "object",
-            properties: {
-              status: {
-                type: "number",
-                example: 200,
-              },
-              message: {
-                type: "string",
-                example: "Delete organization successfully",
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-});
-orgRouter.delete("/:orgId");

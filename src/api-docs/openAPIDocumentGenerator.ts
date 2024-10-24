@@ -1,4 +1,5 @@
-import { mindmapRegistry, orgRegistry } from "@/router/mindmapRouter";
+import { mindmapRegistry } from "@/router/mindmapRouter";
+import { orgRegistry } from "@/router/orgRouter";
 import {
   OpenAPIRegistry,
   OpenApiGeneratorV3,

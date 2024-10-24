@@ -3,9 +3,10 @@ import { Request, Response, NextFunction } from "express";
 import morgan from "morgan";
 import cors from "cors";
 import httpErrors from "http-errors";
-import { mindmapRouter, orgRouter } from "@/router/mindmapRouter";
+import { mindmapRouter } from "@/router/mindmapRouter";
 import dotenv from "dotenv";
 import { openAPIRouter } from "./api-docs/openAPIRouter";
+import { orgRouter } from "./router/orgRouter";
 dotenv.config();
 const app = express();
 
@@ -34,7 +35,7 @@ app.get("/", async (req: Request, res: Response) => {
 
 // Routes
 app.use("/mindmap", mindmapRouter);
-app.use("/organization", orgRouter);
+app.use("/org", orgRouter);
 
 app.use(async (req: Request, res: Response, next: NextFunction) => {
   next(httpErrors.BadRequest("Bad request"));
