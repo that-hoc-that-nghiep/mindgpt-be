@@ -145,7 +145,7 @@ export class MindmapController {
     }
   };
 
-  deleteMindmaps: RequestHandler = async (
+  deleteMindmap: RequestHandler = async (
     req: Request,
     res: Response
   ): Promise<void> => {
@@ -160,9 +160,9 @@ export class MindmapController {
         });
         return;
       }
-      mindmapService.deleteMindmap(mindmapId);
-      res.status(statusCode.NO_CONTENT).json({
-        status: statusCode.NO_CONTENT,
+      await mindmapService.deleteMindmap(mindmapId);
+      res.status(statusCode.OK).json({
+        status: statusCode.OK,
         message: "Delete mindmap successfully",
       });
     } catch (error) {

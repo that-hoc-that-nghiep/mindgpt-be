@@ -19,6 +19,7 @@ import {
 } from "./types.ts/createMindmap.types";
 import { Organization } from "./authService";
 import { unlink } from "fs/promises";
+import { GetMindmapByIdResponse } from "./types.ts/getMindmapById";
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -228,7 +229,6 @@ export class MindmapService {
   async getMindmapById(mindmapId: string) {
     try {
       const mindmap = await this.mindmapRepository.getMindmapById(mindmapId);
-
       return mindmap;
     } catch (error) {
       const errorMessage = `Error getting mindmap: ${(error as Error).message}`;
@@ -237,9 +237,25 @@ export class MindmapService {
     }
   }
   async deleteMindmap(mindmapId: string) {
-    const mindmapGetById = await this.getMindmapById(mindmapId);
-    await this.mindmapRepository.deleteMindmap(mindmapId);
-    // if(mindmapGetById.type === MindmapType.SUMMARY)
+    try {
+      const mindmapGetById = await this.mindmapRepository.getMindmapById(
+        mindmapId
+      );
+      await this.mindmapRepository.deleteMindmap(mindmapId);
+      if (
+        mindmapGetById?.type === MindmapType.SUMMARY &&
+        mindmapGetById.document.type === DocumentTypeRequest.PDF
+      ) {
+        const documentsId = mindmapGetById.documentsId;
+        const fileName = getFileNameFromUrl(mindmapGetById.document.url);
+        supabase.storage.from("document").remove([fileName]);
+        handleCallApiDeleteDocumentsId(documentsId);
+      }
+    } catch (e) {
+      const errorMessage = `Error delete mindmap: ${(e as Error).message}`;
+      console.log(errorMessage);
+      throw new Error(errorMessage);
+    }
   }
 }
 
@@ -303,5 +319,24 @@ export function getFileNameFromUrl(url: string): string {
   const fileNameWithExtension = parts.pop()?.split("?")[0] || "";
   return fileNameWithExtension;
 }
+
+export const handleCallApiDeleteDocumentsId = async (documentsId: string[]) => {
+  try {
+    const url = `${baseUrl}/mindmap/delete-docs`;
+    const requestAi = {
+      ids: documentsId,
+    };
+    await axios.patch(url, requestAi, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      validateStatus: function (status: number) {
+        return status >= 200 && status < 300;
+      },
+    });
+  } catch (error) {
+    throw new Error("Fall call apiHub for delete documentsId");
+  }
+};
 
 export const mindmapService = new MindmapService();
