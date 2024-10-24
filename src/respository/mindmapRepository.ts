@@ -133,15 +133,15 @@ export class MindmapRepository {
         .select("-__v")
         .populate({
           path: "nodes",
-          select: "-__v",
+          select: "-_id -__v",
         })
         .populate({
           path: "edges",
-          select: "-__v",
+          select: "-_id -__v",
         })
         .populate({
           path: "conversation",
-          select: "-__v",
+          select: "-_id -__v",
         })
         .exec();
       return mindmap;
@@ -151,14 +151,16 @@ export class MindmapRepository {
   };
 
   deleteMindmap = async (mindmapId: string) => {
-    // Attempt to delete the mindmap with the given ID
-    const result = await MindmapModel.deleteOne({ _id: mindmapId });
-
-    // Check if a mindmap was deleted
-    if (result.deletedCount === 0) {
-      throw new Error(`Mindmap with ID ${mindmapId} not found.`);
-    } else {
+    try {
+      const result = await MindmapModel.deleteOne({ _id: mindmapId });
+      if (result.deletedCount === 0) {
+        throw new Error(`Mindmap with ID ${mindmapId} not found.`);
+      }
       return result.acknowledged;
+    } catch (error) {
+      const errorMessage = `${(error as Error).message}`;
+      console.log(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 }

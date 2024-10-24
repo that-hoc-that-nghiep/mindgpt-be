@@ -98,7 +98,7 @@ export class MindmapController {
         });
         return;
       }
-      const mindmap = await mindmapService.getMindmapById(mindmapId, orgId);
+      const mindmap = await mindmapService.getMindmapById(mindmapId);
       res.status(statusCode.OK).json({
         status: statusCode.OK,
         message: "Get mindmap by id successfully",
@@ -150,11 +150,26 @@ export class MindmapController {
     res: Response
   ): Promise<void> => {
     try {
-      const mindmapId = req.body.mindmapId;
-      const response = await mindmapService.deleteMindmap(mindmapId);
-      res.status(200).json(response);
+      const { mindmapId, orgId } = req.params;
+      const bearerToken = getBearerToken(req);
+      const user = await getUserInfo(bearerToken);
+      if (!isUserInOrg(user, orgId)) {
+        res.status(statusCode.UNAUTHORIZED).json({
+          status: statusCode.UNAUTHORIZED,
+          message: "User is not in the organization",
+        });
+        return;
+      }
+      mindmapService.deleteMindmap(mindmapId);
+      res.status(statusCode.NO_CONTENT).json({
+        status: statusCode.NO_CONTENT,
+        message: "Delete mindmap successfully",
+      });
     } catch (error) {
-      res.status(500).json({ message: error });
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+        status: statusCode.INTERNAL_SERVER_ERROR,
+        message: (error as Error).message,
+      });
     }
   };
 }
