@@ -46,52 +46,60 @@ export interface MindmapResponeAIHub {
 }
 export class MindmapRepository {
   createNewMindmap = async (values: MindmapResponeAIHub) => {
-    const savedNodes = [];
-    for (const node of values.nodes) {
-      const resNode = await new NodesModel(node).save();
-      savedNodes.push(resNode._id);
+    try {
+      const savedNodes = [];
+      for (const node of values.nodes) {
+        const resNode = await new NodesModel(node).save();
+        savedNodes.push(resNode._id);
+      }
+
+      const savedEdges = [];
+      for (const edge of values.edges) {
+        const resEdge = await new EdgesModel(edge).save();
+        savedEdges.push(resEdge._id);
+      }
+      const resConversation = await new ConversationModel(
+        values.conversation
+      ).save();
+
+      const conversationId = resConversation._id;
+
+      const resMindmap = await new MindmapModel({
+        title: values.title,
+        thumbnail: values.thumbnail,
+        prompt: values.prompt,
+        type: values.type,
+        nodes: savedNodes,
+        edges: savedEdges,
+        document: values.document,
+        documentsId: values.documentsId,
+        orgId: values.orgId,
+        conversation: conversationId,
+      }).save();
+
+      const populatedMindmap = await MindmapModel.findById(resMindmap._id)
+        .select("-__v")
+        .populate({
+          path: "nodes",
+          select: "-_id -__v",
+        })
+        .populate({
+          path: "edges",
+          select: "-_id -__v",
+        })
+        .populate({
+          path: "conversation",
+          select: "-_id -__v",
+        })
+        .exec();
+      return populatedMindmap;
+    } catch (error) {
+      const errorMessage = `Error creating new mindmap in mongodb: ${
+        (error as Error).message
+      }`;
+      console.log(errorMessage);
+      throw new Error(errorMessage);
     }
-
-    const savedEdges = [];
-    for (const edge of values.edges) {
-      const resEdge = await new EdgesModel(edge).save();
-      savedEdges.push(resEdge._id);
-    }
-    const resConversation = await new ConversationModel(
-      values.conversation
-    ).save();
-
-    const conversationId = resConversation._id;
-
-    const resMindmap = await new MindmapModel({
-      title: values.title,
-      thumbnail: values.thumbnail,
-      prompt: values.prompt,
-      type: values.type,
-      nodes: savedNodes,
-      edges: savedEdges,
-      document: values.document,
-      documentsId: values.documentsId,
-      orgId: values.orgId,
-      conversation: conversationId,
-    }).save();
-
-    const populatedMindmap = await MindmapModel.findById(resMindmap._id)
-      .select("-__v")
-      .populate({
-        path: "nodes",
-        select: "-_id -__v",
-      })
-      .populate({
-        path: "edges",
-        select: "-_id -__v",
-      })
-      .populate({
-        path: "conversation",
-        select: "-_id -__v",
-      })
-      .exec();
-    return populatedMindmap;
   };
 
   getAllMindmaps = async (
@@ -100,19 +108,23 @@ export class MindmapRepository {
     skip: number,
     keyword?: string
   ) => {
-    const filter: Record<string, any> = {
-      orgId: orgId,
-    };
-    if (keyword) {
-      filter.title = { $regex: keyword, $options: "i" };
-    }
-    const mindmaps = await MindmapModel.find(filter)
-      .skip(skip)
-      .limit(limit)
-      .select("-__v");
+    try {
+      const filter: Record<string, any> = {
+        orgId: orgId,
+      };
+      if (keyword) {
+        filter.title = { $regex: keyword, $options: "i" };
+      }
+      const mindmaps = await MindmapModel.find(filter)
+        .skip(skip)
+        .limit(limit)
+        .select("-__v");
 
-    const total = await MindmapModel.countDocuments(filter);
-    return { mindmaps, total };
+      const total = await MindmapModel.countDocuments(filter);
+      return { mindmaps, total };
+    } catch (error) {
+      throw new Error("Get all mindmaps faild");
+    }
   };
 
   getMindmapById = async (mindmapId: string) => {
