@@ -20,7 +20,7 @@ app.use(morgan("dev")); // Logger middleware
 
 app.use(
   cors({
-    origin: "*",
+    origin: ["http://localhost:5173", /^https:\/\/.*\.mind-gpt\.online$/],
     allowedHeaders: ["Content-Type", "Authorization", "X-Custom-Header"],
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
