@@ -57,6 +57,7 @@ const bodyCreateExampleBySummaryYoutube = {
 };
 export const mindmapRouter = express.Router();
 export const mindmapRegistry = new OpenAPIRegistry();
+
 mindmapRegistry.registerPath({
   method: "post",
   path: "/mindmap/:orgId",
@@ -160,7 +161,7 @@ mindmapRouter.get("/:orgId/:mindmapId", mindmapController.getMindmapById);
 mindmapRegistry.registerPath({
   method: "get",
   description:
-    "Get Mindmap by ID with request query limit, skip, keyword. Note that when returning 'all', it includes the set of nodes, edges, and conversations, whereas it only returns a set of objectIds in string format. !",
+    "Get Mindmap by ID with request query limit, page, keyword. Note that when returning 'all', it includes the set of nodes, edges, and conversations, whereas it only returns a set of objectIds in string format. !",
   path: "/mindmap/:orgId",
   tags: ["Mindmap"],
   responses: createApiResponse(MindmapGetSchemaDoc, "Success"),
