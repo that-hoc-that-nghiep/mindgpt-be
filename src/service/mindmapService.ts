@@ -247,7 +247,14 @@ export class MindmapService {
       ) {
         const documentsId = mindmapGetById.documentsId;
         const fileName = getFileNameFromUrl(mindmapGetById.document.url);
-        supabase.storage.from("document").remove([fileName]);
+        const { error: storageError } = await supabase.storage
+          .from("document")
+          .remove([fileName]);
+        if (storageError) {
+          throw new Error(
+            `Failed to remove file from storage supabase: ${storageError.message}`
+          );
+        }
         handleCallApiDeleteDocumentsId(documentsId);
       }
     } catch (e) {
@@ -309,9 +316,13 @@ export const handleParseMermaid = async (
       count++;
     }
   } while (count < countLimit);
-  throw new Error(
-    "Error call api ai hub with " + values.type + " docType " + values.docType
-  );
+  if (values.type === MindmapType.SUMMARY) {
+    throw new Error(
+      "Error call api ai hub with " + values.type + " docType " + values.docType
+    );
+  } else {
+    throw new Error("Error call api ai hub with " + values.type);
+  }
 };
 export function getFileNameFromUrl(url: string): string {
   const parts = url.split("/");
@@ -319,13 +330,13 @@ export function getFileNameFromUrl(url: string): string {
   return fileNameWithExtension;
 }
 
-export const handleCallApiDeleteDocumentsId = async (documentsId: string[]) => {
+export const handleCallApiDeleteDocumentsId = (documentsId: string[]) => {
   try {
     const url = `${baseUrl}/mindmap/delete-docs`;
     const requestAi = {
       ids: documentsId,
     };
-    await axios.patch(url, requestAi, {
+    axios.patch(url, requestAi, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -334,7 +345,11 @@ export const handleCallApiDeleteDocumentsId = async (documentsId: string[]) => {
       },
     });
   } catch (error) {
-    throw new Error("Fall call apiHub for delete documentsId");
+    const errorMessage = `Error delete documentsid from api aihub: ${
+      (error as Error).message
+    }`;
+    console.log(errorMessage);
+    throw new Error(errorMessage);
   }
 };
 

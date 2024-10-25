@@ -158,36 +158,26 @@ export class MindmapRepository {
     try {
       const mindmap = await MindmapModel.findById(mindmapId);
 
-      if (!mindmap) {
-        throw new Error(`Mindmap with ID ${mindmapId} not found.`);
-      }
-
-      const mindmapResult = await MindmapModel.deleteOne({ _id: mindmapId });
-
+      const mindmapResult = await MindmapModel.deleteOne({ _id: mindmap?._id });
       if (!mindmapResult.acknowledged) {
         throw new Error("Fail to delete mindmap.");
       }
 
-      const nodeResult = await NodesModel.deleteMany({
-        _id: { $in: mindmap.nodes },
-      });
-      if (!nodeResult.acknowledged) {
-        throw new Error("Fail to delete nodes.");
-      }
+      const checkAcknowledged = (result: any, errorMessage: string) => {
+        if (!result.acknowledged) {
+          throw new Error(errorMessage);
+        }
+      };
 
-      const edgeResult = await EdgesModel.deleteMany({
-        _id: { $in: mindmap.edges },
-      });
-      if (!edgeResult.acknowledged) {
-        throw new Error("Fail to delete edges.");
-      }
+      const [nodeResult, edgeResult, conversationResult] = await Promise.all([
+        NodesModel.deleteMany({ _id: { $in: mindmap?.nodes } }),
+        EdgesModel.deleteMany({ _id: { $in: mindmap?.edges } }),
+        ConversationModel.deleteMany({ _id: { $in: mindmap?.conversation } }),
+      ]);
 
-      const conversationResult = await ConversationModel.deleteMany({
-        _id: { $in: mindmap.conversation },
-      });
-      if (!conversationResult.acknowledged) {
-        throw new Error("Fail to delete conversation.");
-      }
+      checkAcknowledged(nodeResult, "Fail to delete nodes.");
+      checkAcknowledged(edgeResult, "Fail to delete edges.");
+      checkAcknowledged(conversationResult, "Fail to delete conversation.");
       return true;
     } catch (error) {
       if (error instanceof Error) {

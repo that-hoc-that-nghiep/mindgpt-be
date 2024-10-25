@@ -1,5 +1,6 @@
 import express from "express";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
+import { orgController } from "@/controller/orgController";
 export const orgRegistry = new OpenAPIRegistry();
 export const orgRouter = express.Router();
 orgRegistry.registerPath({
@@ -30,4 +31,4 @@ orgRegistry.registerPath({
     },
   },
 });
-orgRouter.delete("/:orgId");
+orgRouter.delete("/:orgId", orgController.deleteOrg);
