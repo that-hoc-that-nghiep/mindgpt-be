@@ -28,11 +28,10 @@ export class OrgController {
       if (!orgInfo?.is_owner) {
         throw new Error("Only owner can delete organization");
       }
-      const he = await orgService.deleteOrg(orgId, bearerToken);
+      orgService.deleteOrg(orgId, bearerToken);
       res.status(statusCode.OK).json({
         status: statusCode.OK,
         message: "Delete organization successfully",
-        data: he,
       });
     } catch (error) {
       const errorMessage = `${(error as Error).message}`;

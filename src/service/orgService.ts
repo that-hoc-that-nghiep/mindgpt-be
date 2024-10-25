@@ -22,22 +22,19 @@ export class OrgService {
       const filenames = await this.orgRepository.getFilenamesByDocTypePdf(
         orgId
       );
-      //   const { error: storageError } = await supabase.storage
-      //     .from("document")
-      //     .remove(filenames);
-      //   if (storageError) {
-      //     throw new Error(
-      //       `Failed to remove file from storage supabase: ${storageError.message}`
-      //     );
-      //   }
-      //   handleCallApiDeleteDocumentsId(documentsId);
-      //   await this.orgRepository.deleteMindmapByOrgId(orgId);
-      //   await hanleCallApiAuthRemoveOrg(orgId, token);
-
-      return {
-        documentsId,
-        filenames,
-      };
+      if (documentsId.length > 0 && filenames.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from("document")
+          .remove(filenames);
+        if (storageError) {
+          throw new Error(
+            `Failed to remove file from storage supabase: ${storageError.message}`
+          );
+        }
+        handleCallApiDeleteDocumentsId(documentsId);
+      }
+      await this.orgRepository.deleteMindmapByOrgId(orgId);
+      await hanleCallApiAuthRemoveOrg(orgId, token);
     } catch (error) {
       const errorMessage = `${(error as Error).message}`;
       console.log(errorMessage);

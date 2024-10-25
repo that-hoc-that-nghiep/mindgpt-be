@@ -331,26 +331,20 @@ export function getFileNameFromUrl(url: string): string {
 }
 
 export const handleCallApiDeleteDocumentsId = (documentsId: string[]) => {
-  try {
-    const url = `${baseUrl}/mindmap/delete-docs`;
-    const requestAi = {
-      ids: documentsId,
-    };
-    axios.patch(url, requestAi, {
+  const url = `${baseUrl}/mindmap/delete-docs`;
+  const requestAi = {
+    ids: documentsId,
+  };
+  axios
+    .patch(url, requestAi, {
       headers: {
         "Content-Type": "application/json",
       },
       validateStatus: function (status: number) {
         return status >= 200 && status < 300;
       },
-    });
-  } catch (error) {
-    const errorMessage = `Error delete documentsid from api aihub: ${
-      (error as Error).message
-    }`;
-    console.log(errorMessage);
-    throw new Error(errorMessage);
-  }
+    })
+    .catch(() => {});
 };
 
 export const mindmapService = new MindmapService();
