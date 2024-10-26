@@ -186,10 +186,18 @@ export class MindmapService {
             values.orgId,
             requestAIHubFile.document
           );
-          const newMindmap = await this.mindmapRepository.createNewMindmap(
-            await parsedData
+          const levelZeroNodes = (await parsedData).nodes.filter(
+            (node) => node.level === 0
           );
-          return newMindmap;
+          if (levelZeroNodes.length == 1) {
+            const newMindmap = await this.mindmapRepository.createNewMindmap(
+              await parsedData
+            );
+            return newMindmap;
+          } else {
+            count++;
+            continue;
+          }
         } else {
           count++;
         }
@@ -324,7 +332,15 @@ export const handleParseMermaid = async (
         values.orgId,
         requestBody.document || {}
       );
-      return parsedData;
+      const levelZeroNodes = (await parsedData).nodes.filter(
+        (node) => node.level === 0
+      );
+      if (levelZeroNodes.length == 1) {
+        return parsedData;
+      } else {
+        count++;
+        continue;
+      }
     } else {
       count++;
     }
