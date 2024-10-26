@@ -51,6 +51,39 @@ export class ConversationController {
             });
         }
     };
+
+    getConversationOfMindmap: RequestHandler = async (
+        req: Request,
+        res: Response
+    ): Promise<void> => {
+        try {
+            const bearerToken = getBearerToken(req);
+            const user = await getUserInfo(bearerToken);
+            const { orgId, mindmapId } = req.params;
+
+            //Check if user is in the organization
+            if (!isUserInOrg(user, orgId)) {
+                res.status(statusCode.UNAUTHORIZED).json({
+                    status: statusCode.UNAUTHORIZED,
+                    message: "User is not in the organization",
+                });
+                return;
+            }
+
+            const serviceResponse = await conversationService.getConversationOfMindmap(mindmapId);
+
+            res.status(statusCode.OK).json({
+                status: statusCode.OK,
+                message: "Get conversation of mindmap successfully",
+                data: serviceResponse,
+            });
+        } catch (error) {
+            res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+                status: statusCode.INTERNAL_SERVER_ERROR,
+                message: (error as Error).message,
+            });
+        }
+    };
 }
 
 export const conversationController = new ConversationController();
