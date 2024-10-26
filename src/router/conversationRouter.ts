@@ -37,3 +37,13 @@ conversationRegistry.registerPath({
 
 conversationRouter.post("/:orgId/:mindmapId", conversationController.createConversation);
 
+conversationRegistry.registerPath({
+    method: "get",
+    description: "Get all conversation of mindmap",
+    path: "/conversation/:orgId/:mindmapId",
+    tags: ["Conversation"],
+    responses: createApiResponse(MessageConversationDoc, "Success"),
+});
+
+conversationRouter.get("/:orgId/:mindmapId", conversationController.getConversationOfMindmap);
+
