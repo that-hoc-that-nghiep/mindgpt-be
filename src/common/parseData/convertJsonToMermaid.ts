@@ -1,6 +1,7 @@
 import { EdgeMindmap, NodeMindmap } from "@/respository/mindmapRepository"
 
-export function convertToMermaid(nodes: NodeMindmap[], edges: EdgeMindmap[]) {
+
+export function convertJsonToMermaid(nodes: NodeMindmap[], edges: EdgeMindmap[]) {
     let mermaidGraph = "mermaid\ngraph TB\n"
 
     nodes.forEach((node: NodeMindmap) => {
