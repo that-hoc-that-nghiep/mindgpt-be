@@ -61,11 +61,6 @@ export class MindmapRepository {
         const resEdge = await new EdgesModel(edge).save();
         savedEdges.push(resEdge._id);
       }
-      const resConversation = await new ConversationModel(
-        values.conversation
-      ).save();
-
-      const conversationId = resConversation._id;
 
       const resMindmap = await new MindmapModel({
         title: values.title,
@@ -77,7 +72,6 @@ export class MindmapRepository {
         document: values.document,
         documentsId: values.documentsId,
         orgId: values.orgId,
-        conversation: conversationId,
       }).save();
 
       const populatedMindmap = await MindmapModel.findById(resMindmap._id)
