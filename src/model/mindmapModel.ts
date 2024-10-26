@@ -97,7 +97,7 @@ const ConversationSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
+}, { versionKey: false });
 
 const NodesSchema = new mongoose.Schema({
   id: {

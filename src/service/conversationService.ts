@@ -47,6 +47,14 @@ export class ConversationService {
             throw new Error("Error creating new conversation");
         }
     };
+    getConversationOfMindmap = async (mindmapId: string) => {
+        try {
+            const conversation = await this.conversationRepository.findConversationOfMindmap(mindmapId);
+            return conversation;
+        } catch (error) {
+            throw new Error("Error getting conversation of mindmap");
+        }
+    }
 }
 
 export const conversationService = new ConversationService();
