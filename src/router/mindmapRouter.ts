@@ -301,28 +301,7 @@ mindmapRegistry.registerPath({
     },
     required: true,
   },
-  responses: {
-    204: {
-      description: "update mindmap successfully",
-      content: {
-        "application/json": {
-          schema: {
-            type: "object",
-            properties: {
-              status: {
-                type: "number",
-                example: 200,
-              },
-              message: {
-                type: "string",
-                example: "Update mindmap successfully",
-              },
-            },
-          },
-        },
-      },
-    },
-  },
+  responses: createApiResponse(MindmapSchemaDoc, "Success"),
 });
 
 mindmapRouter.put("/:orgId/:mindmapId", mindmapController.updateMindmap);

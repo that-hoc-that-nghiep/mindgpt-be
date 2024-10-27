@@ -200,7 +200,7 @@ export class MindmapRepository {
         switch (node.type_update) {
           case MindmapUpdateType.CREATE: {
             const { type_update, referNode, ...saveNode } = node;
-            // console.log(saveNode);
+            // console.log('create node', saveNode);
             const referNodeData = await NodesModel.findOne({
               id: referNode,
               _id: { $in: mindmap.nodes },
@@ -226,15 +226,14 @@ export class MindmapRepository {
                 $push: { edges: newEdge._id },
               });
             }
-
-            return newNode;
+            break;
           }
           case MindmapUpdateType.EDIT: {
             const finededNode = await NodesModel.findOne({
               id: node.id,
               _id: { $in: mindmap.nodes },
             }).exec();
-            // console.log(finededNode?._id);
+            // console.log('edit node', finededNode);
             if (!finededNode) {
               throw new Error(`Node with ID ${node.id} not found.`);
             } else {
@@ -247,8 +246,8 @@ export class MindmapRepository {
               if (!updatedNode) {
                 throw new Error(`Node with ID ${node.id} not found.`);
               }
+              break;
             }
-            break;
           }
 
           case MindmapUpdateType.DELETE: {
@@ -256,7 +255,7 @@ export class MindmapRepository {
               id: node.id,
               _id: { $in: mindmap.nodes },
             }).exec();
-            console.log(finededNode);
+            // console.log('delete node', finededNode);
             if (!finededNode) {
               throw new Error(`Node with ID ${node.id} not found.`);
             } else {
@@ -273,6 +272,8 @@ export class MindmapRepository {
           }
         }
       }
+      // console.log('update ',mindmap);
+      return mindmap;
     } catch (error) {
       throw new Error(`Mindmap with ID ${mindmapId} not found 1.`);
     }

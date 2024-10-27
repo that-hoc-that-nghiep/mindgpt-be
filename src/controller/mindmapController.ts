@@ -188,10 +188,12 @@ export class MindmapController {
         });
         return;
       }
-      await mindmapService.updateMindmap(mindmapId, req.body);
+      const serviceRespons = await mindmapService.updateMindmap(mindmapId, req.body);
+      console.log('res ',serviceRespons);
       res.status(statusCode.OK).json({
         status: statusCode.OK,
         message: "Update mindmap successfully",
+        data: serviceRespons
       });
     } catch (error) {
       res.status(statusCode.INTERNAL_SERVER_ERROR).json({
