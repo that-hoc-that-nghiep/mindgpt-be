@@ -40,8 +40,8 @@ export const parseMermaidToJson = async (
         label: label,
         level: -1,
         pos: { x: 0, y: 0 },
-        text_color: "",
-        bg_color: "",
+        text_color: "#000",
+        bg_color: "#fff",
         size: { width: 0, height: 0 },
         note: "",
       });
