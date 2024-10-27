@@ -197,3 +197,105 @@ mindmapRegistry.registerPath({
   },
 });
 mindmapRouter.delete("/:orgId/:mindmapId", mindmapController.deleteMindmap);
+
+mindmapRegistry.registerPath({
+  method: "put",
+  description: "Update Mindmap by ID",
+  path: "/mindmap/:orgId/:mindmapId",
+  tags: ["Mindmap"],
+  requestBody: {
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          properties: {
+            nodes: {
+              type: "array",
+              description: "Nodes that client want to update",
+              items: {
+                type: "object",
+                properties: {
+                  id: {
+                    type: "string",
+                    description: "Node ID",
+                  },
+                  label: {
+                    type: "string",
+                    description: "Node label",
+                  },
+                  level: {
+                    type: "number",
+                    description: "Node level",
+                  },
+                  text_color: {
+                    type: "string",
+                    description: "color of text",
+                  },
+                  bd_color: {
+                    type: "string",
+                    description: "color of background",
+                  },
+                  size: {
+                    type: "object",
+                    properties: {
+                      width: {
+                        type: "number",
+                        description: "width of node",
+                      },
+                      height: {
+                        type: "number",
+                        description: "height of node",
+                      },
+                    },
+                  },
+                  note: {
+                    type: "string",
+                    description: "Node note",
+                  },
+                  type_update: {
+                    type: "string",
+                    description:
+                      "Type of the update. Options: create, edit, delete",
+                  },
+                  referNode: {
+                    type: "string",
+                    description: "id of reference node",
+                  },
+                },
+                required: ["id", "type_update"],
+              },
+              example: "[]",
+            },
+          },
+          required: ["nodes"],
+        },
+      },
+      examples: {},
+    },
+    required: true,
+  },
+  responses: {
+    204: {
+      description: "update mindmap successfully",
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            properties: {
+              status: {
+                type: "number",
+                example: 200,
+              },
+              message: {
+                type: "string",
+                example: "Update mindmap successfully",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+});
+
+mindmapRouter.put("/:orgId/:mindmapId", mindmapController.updateMindmap);

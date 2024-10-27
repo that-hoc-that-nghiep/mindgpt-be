@@ -1,10 +1,12 @@
-import { MindmapType, RoleChat } from "@/constant";
+import { MindmapType, MindmapUpdateType, RoleChat } from "@/constant";
 import {
   ConversationModel,
   EdgesModel,
   MindmapModel,
   NodesModel,
 } from "@/model/mindmapModel";
+import { UpdateRequest } from "@/service/types.ts/createMindmap.types";
+const mongoose = require("mongoose");
 export interface NodeMindmap {
   id: string;
   label: string;
@@ -21,6 +23,7 @@ export interface NodeMindmap {
   };
   note: string;
 }
+
 export interface EdgeMindmap {
   id: string;
   from: string;
@@ -190,6 +193,85 @@ export class MindmapRepository {
       } else {
         throw new Error("An unknown error occurred");
       }
+    }
+  };
+
+  updateMindmap = async (mindmapId: string, values: UpdateRequest) => {
+    try {
+      const mindmap = await MindmapModel.findById(mindmapId);
+      if (!mindmap) {
+        throw new Error(`Mindmap with ID ${mindmapId} not found. 2`);
+      }
+      for (const node of values.nodes) {
+        switch (node.type_update) {
+          case MindmapUpdateType.CREATE: {
+            const { type_update, referNode, ...saveNode } = node;
+            // console.log(saveNode);
+            const newNode = await new NodesModel(saveNode).save();
+            await MindmapModel.findByIdAndUpdate(mindmapId, {
+              $push: { nodes: newNode._id },
+            });
+            if (referNode != "") {
+              const newEdge = await new EdgesModel({
+                id: `${referNode} --> ${saveNode.id}`,
+                from: referNode,
+                to: saveNode.id,
+                name: `${referNode} --> ${saveNode.id}`,
+              }).save();
+              // console.log("New edge saved:", newEdge);
+              await MindmapModel.findByIdAndUpdate(mindmapId, {
+                $push: { edges: newEdge._id },
+              });
+            }
+
+            return newNode;
+          }
+          case MindmapUpdateType.EDIT: {
+            const finededNode = await NodesModel.findOne({
+              id: node.id,
+              _id: { $in: mindmap.nodes },
+            }).exec();
+            // console.log(finededNode?._id);
+            if (!finededNode) {
+              throw new Error(`Node with ID ${node.id} not found.`);
+            } else {
+              const { type_update, referNode, ...saveNode } = node;
+              // console.log(saveNode);
+              const updatedNode = await NodesModel.findOneAndUpdate(
+                { _id: finededNode._id },
+                saveNode
+              );
+              if (!updatedNode) {
+                throw new Error(`Node with ID ${node.id} not found.`);
+              }
+            }
+            break;
+          }
+
+          case MindmapUpdateType.DELETE: {
+            const finededNode = await NodesModel.findOne({
+              id: node.id,
+              _id: { $in: mindmap.nodes },
+            }).exec();
+            console.log(finededNode);
+            if (!finededNode) {
+              throw new Error(`Node with ID ${node.id} not found.`);
+            } else {
+              mindmap.nodes = mindmap.nodes.filter(
+                (n) => !n.equals(finededNode._id)
+              );
+              await MindmapModel.findByIdAndUpdate(
+                mindmapId,
+                { nodes: mindmap.nodes },
+                { new: true, runValidators: true }
+              );
+              console.log(finededNode);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      throw new Error(`Mindmap with ID ${mindmapId} not found 1.`);
     }
   };
 }

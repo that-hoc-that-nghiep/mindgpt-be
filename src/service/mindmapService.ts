@@ -15,6 +15,7 @@ import {
   CreateMinmapByUploadFileRequest,
   CreateRequest,
   CreativeRequestAI,
+  UpdateRequest,
   SummaryRequestAI,
 } from "./types.ts/createMindmap.types";
 import { Organization } from "./authService";
@@ -263,7 +264,19 @@ export class MindmapService {
       throw new Error(errorMessage);
     }
   }
+  
+   async updateMindmap(mindmapId: string, values: UpdateRequest) {
+    try {
+      const mindmap = await this.mindmapRepository.updateMindmap(mindmapId, values);
+      return mindmap;
+    } catch (error) {
+      const errorMessage = `Error update mindmap: ${(error as Error).message} 3`;
+      console.log(errorMessage);
+      throw new Error(errorMessage);
+    }
+  }
 }
+
 
 export const validatePackageOrg = async (
   file: Express.Multer.File,
