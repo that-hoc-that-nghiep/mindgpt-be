@@ -1,3 +1,4 @@
+import { conversationRegistry } from "@/router/conversationRouter";
 import { mindmapRegistry } from "@/router/mindmapRouter";
 import { orgRegistry } from "@/router/orgRouter";
 import {
@@ -6,7 +7,7 @@ import {
 } from "@asteasolutions/zod-to-openapi";
 
 export function generateOpenAPIDocument() {
-  const registry = new OpenAPIRegistry([mindmapRegistry, orgRegistry]);
+  const registry = new OpenAPIRegistry([mindmapRegistry, orgRegistry,conversationRegistry]);
   const generator = new OpenApiGeneratorV3(registry.definitions);
 
   return generator.generateDocument({
