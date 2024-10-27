@@ -172,6 +172,36 @@ export class MindmapController {
       });
     }
   };
+  //*
+  updateMindmap: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const { mindmapId, orgId } = req.params;
+      const bearerToken = getBearerToken(req);
+      const user = await getUserInfo(bearerToken);
+      if (!isUserInOrg(user, orgId)) {
+        res.status(statusCode.UNAUTHORIZED).json({
+          status: statusCode.UNAUTHORIZED,
+          message: "User is not in the organization",
+        });
+        return;
+      }
+      const serviceRespons = await mindmapService.updateMindmap(mindmapId, req.body);
+      console.log('res ',serviceRespons);
+      res.status(statusCode.OK).json({
+        status: statusCode.OK,
+        message: "Update mindmap successfully",
+        data: serviceRespons
+      });
+    } catch (error) {
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+        status: statusCode.INTERNAL_SERVER_ERROR,
+        message: (error as Error).message,
+      });
+    }
+}
 }
 
 export const mindmapController = new MindmapController();
