@@ -201,6 +201,15 @@ export class MindmapRepository {
           case MindmapUpdateType.CREATE: {
             const { type_update, referNode, ...saveNode } = node;
             // console.log(saveNode);
+            const referNodeData = await NodesModel.findOne({
+              id: referNode,
+              _id: { $in: mindmap.nodes },
+            });
+            if (referNodeData) {
+              saveNode.level = referNodeData.level + 1;
+            } else {
+              throw new Error("Refer node not found");
+            }
             const newNode = await new NodesModel(saveNode).save();
             await MindmapModel.findByIdAndUpdate(mindmapId, {
               $push: { nodes: newNode._id },

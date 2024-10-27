@@ -27,17 +27,20 @@ export interface CreateRequest {
   orgId: string;
 }
 export interface UpdateRequest {
-  nodes: [{
-    id: string;
-    label: string;
-    pos: { x: number; y: number };
-    text_color: string;
-    bg_color: string;
-    size: { width: number; height: number };
-    note: string;
-    type_update: string;
-    referNode: string; //id of referenced node
-  }]
+  nodes: [
+    {
+      id: string;
+      label: string;
+      level: number;
+      pos: { x: number; y: number };
+      text_color: string;
+      bg_color: string;
+      size: { width: number; height: number };
+      note: string;
+      type_update: string;
+      referNode: string; //id of referenced node
+    }
+  ];
 }
 
 export interface SummaryRequestAI {

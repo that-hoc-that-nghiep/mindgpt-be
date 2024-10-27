@@ -218,22 +218,27 @@ mindmapRegistry.registerPath({
                   id: {
                     type: "string",
                     description: "Node ID",
+                    example: "B",
                   },
                   label: {
                     type: "string",
                     description: "Node label",
+                    example: "new Node",
                   },
                   level: {
                     type: "number",
                     description: "Node level",
+                    example: 5,
                   },
                   text_color: {
                     type: "string",
                     description: "color of text",
+                    example: "#000",
                   },
                   bd_color: {
                     type: "string",
                     description: "color of background",
+                    example: "#fff",
                   },
                   size: {
                     type: "object",
@@ -241,30 +246,52 @@ mindmapRegistry.registerPath({
                       width: {
                         type: "number",
                         description: "width of node",
+                        example: 120,
                       },
                       height: {
                         type: "number",
                         description: "height of node",
+                        example: 80,
                       },
                     },
                   },
                   note: {
                     type: "string",
                     description: "Node note",
+                    example: "note",
                   },
                   type_update: {
                     type: "string",
                     description:
                       "Type of the update. Options: create, edit, delete",
+                    example: "create",
                   },
                   referNode: {
                     type: "string",
                     description: "id of reference node",
+                    example: "A",
                   },
                 },
                 required: ["id", "type_update"],
               },
-              example: "[]",
+              example: `[{
+                        "id": "H",
+                        "label": " Thêm Node",
+                        "level": 8,
+                        "pos": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "text_color": "#000",
+                        "bg_color": "#fff",
+                        "size": {
+                            "width": 120,
+                            "height": 80
+                        },
+                        "note": "",
+                        "type_update": "create",
+                        "referNode": "B"
+              }]`,
             },
           },
           required: ["nodes"],
