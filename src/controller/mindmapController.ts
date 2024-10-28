@@ -16,6 +16,8 @@ import {
 import { validateMindmapRequest } from "@/common/validateRequest/validateMindmapRequest";
 import { unlink } from "fs/promises";
 import { validateGetAllMindmapsRequest } from "@/common/validateRequest/validateGetMinmaprequest";
+import { validateSuggestNoteRequest } from "@/common/validateRequest/validateSuggestNoteRequest";
+import { SuggestNoteRequestBody } from "@/service/types.ts/suggestNoteMindmap.types";
 
 export class MindmapController {
   createMindmap: RequestHandler = async (
@@ -177,15 +179,36 @@ export class MindmapController {
     req: Request,
     res: Response
   ): Promise<void> => {
-    const { mindmapId, orgId } = req.params;
-    const bearerToken = getBearerToken(req);
-    const user = await getUserInfo(bearerToken);
-    if (!isUserInOrg(user, orgId)) {
-      res.status(statusCode.UNAUTHORIZED).json({
-        status: statusCode.UNAUTHORIZED,
-        message: "User is not in the organization",
+    try {
+      const { mindmapId, orgId } = req.params;
+      const values = validateSuggestNoteRequest(req);
+      const bearerToken = getBearerToken(req);
+      const user = await getUserInfo(bearerToken);
+      if (!isUserInOrg(user, orgId)) {
+        res.status(statusCode.UNAUTHORIZED).json({
+          status: statusCode.UNAUTHORIZED,
+          message: "User is not in the organization",
+        });
+        return;
+      }
+      const orgInfo = getOrgFromUser(user, orgId);
+      const llmPackage =
+        LLM_OrgSubscription[orgInfo?.subscription as OrgSubscription];
+      const newNote = await mindmapService.suggestNoteMindmap(
+        mindmapId,
+        values,
+        llmPackage
+      );
+      res.status(statusCode.OK).json({
+        status: statusCode.OK,
+        message: "Suggest note mindmap successfully",
+        data: newNote,
       });
-      return;
+    } catch (error) {
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+        status: statusCode.INTERNAL_SERVER_ERROR,
+        message: (error as Error).message,
+      });
     }
   };
 

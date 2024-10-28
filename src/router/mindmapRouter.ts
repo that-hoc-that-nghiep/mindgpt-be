@@ -2,7 +2,6 @@ import express from "express";
 import { mindmapController } from "@/controller/mindmapController";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
-import z from "zod";
 import {
   MindmapGetByIdSchemaDoc,
   MindmapGetSchemaDoc,
@@ -10,8 +9,6 @@ import {
   SuggestNoteDoc,
 } from "@/model/mindmapModel";
 import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
-import { create } from "domain";
-import { min } from "moment";
 
 const bodyCreateExampleByCreative = {
   type: "creative",
@@ -486,13 +483,6 @@ mindmapRegistry.registerPath({
               },
               required: ["id", "label"],
             },
-            documentsId: {
-              type: "array",
-              items: {
-                type: "string",
-              },
-              example: [],
-            },
           },
         },
       },
@@ -500,4 +490,7 @@ mindmapRegistry.registerPath({
   },
   responses: createApiResponse(SuggestNoteDoc, "Success"),
 });
-mindmapRouter.post("/:orgId/:mindmapId/suggest-note");
+mindmapRouter.post(
+  "/:orgId/:mindmapId/suggest-note",
+  mindmapController.suggestNoteMindmap
+);
