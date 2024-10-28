@@ -232,6 +232,16 @@ export class MindmapController {
       const orgInfo = getOrgFromUser(user, orgId);
       const llmPackage =
         LLM_OrgSubscription[orgInfo?.subscription as OrgSubscription];
+      const newQuizs = await mindmapService.genQuizMindmap(
+        mindmapId,
+        values,
+        llmPackage
+      );
+      res.status(statusCode.OK).json({
+        status: statusCode.OK,
+        message: "Gen quiz mindmap successfully",
+        data: newQuizs,
+      });
     } catch (error) {
       res.status(statusCode.INTERNAL_SERVER_ERROR).json({
         status: statusCode.INTERNAL_SERVER_ERROR,
