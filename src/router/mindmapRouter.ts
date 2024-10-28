@@ -533,4 +533,7 @@ mindmapRegistry.registerPath({
   },
   responses: createApiResponse(QuizDoc, "Success"),
 });
-mindmapRouter.post("/:orgId/:mindmapId/gen-quiz");
+mindmapRouter.post(
+  "/:orgId/:mindmapId/gen-quiz",
+  mindmapController.genQuizMindmap
+);

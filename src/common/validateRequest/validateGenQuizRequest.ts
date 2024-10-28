@@ -6,21 +6,31 @@ export function validateGenQuizRequest(req: Request) {
   if (!Array.isArray(selectedNodes)) {
     throw new Error("selectedNodes is required and must be an array.");
   }
-
+  if (selectedNodes.length === 0) {
+    throw new Error("selectedNodes must contain at least one node.");
+  }
   selectedNodes.forEach((node, index) => {
     if (typeof node !== "object" || node === null) {
       throw new Error(
-        `Item at index ${index} in selectedNodes must be an object.`
+        `Node at position ${index + 1} in selectedNodes must be an object.`
       );
     }
-    if (typeof node.id !== "string" || !node.id) {
+    if (typeof node.id !== "string" || !node.id || node.id.trim() === "") {
       throw new Error(
-        `Item at index ${index} in selectedNodes must have an 'id' property of type string.`
+        `Node at position ${
+          index + 1
+        } in selectedNodes must have an 'id' property of type string and must not be empty.`
       );
     }
-    if (typeof node.name !== "string" || !node.name) {
+    if (
+      typeof node.name !== "string" ||
+      !node.name ||
+      node.name.trim() === ""
+    ) {
       throw new Error(
-        `Item at index ${index} in selectedNodes must have a 'name' property of type string.`
+        `Node at position ${
+          index + 1
+        } in selectedNodes must have a 'name' property of type string and must not be empty.`
       );
     }
   });
