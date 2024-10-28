@@ -6,6 +6,7 @@ import {
   MindmapGetByIdSchemaDoc,
   MindmapGetSchemaDoc,
   MindmapSchemaDoc,
+  QuizDoc,
   SuggestNoteDoc,
 } from "@/model/mindmapModel";
 import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
@@ -493,4 +494,46 @@ mindmapRegistry.registerPath({
 mindmapRouter.post(
   "/:orgId/:mindmapId/suggest-note",
   mindmapController.suggestNoteMindmap
+);
+
+mindmapRegistry.registerPath({
+  method: "post",
+  path: "/mindmap/:orgId/:mindmapId/gen-quiz",
+  tags: ["Mindmap"],
+  requestBody: {
+    required: true,
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          properties: {
+            selectedNodes: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: {
+                    type: "string",
+                    description: "Node ID",
+                    example: "B",
+                  },
+                  name: {
+                    type: "string",
+                    description: "Node label",
+                    example: "Tieu su",
+                  },
+                },
+                required: ["id", "label"],
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  responses: createApiResponse(QuizDoc, "Success"),
+});
+mindmapRouter.post(
+  "/:orgId/:mindmapId/gen-quiz",
+  mindmapController.genQuizMindmap
 );
