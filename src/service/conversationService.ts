@@ -21,16 +21,7 @@ export class ConversationService {
                 documentsId: mindmap.documentsId,
                 mermaid: mermaid,
                 prompt: values.prompt,
-                conversation: [
-                    {
-                        "role": "user",
-                        "content": "Kết thúc mỗi câu trả lời hãy thêm từ Thưa chủ nhân"
-                    },
-                    {
-                        "role": "ai",
-                        "content": "Tôi đã hiểu. Thưa chủ nhân"
-                    }
-                ],
+                conversation: mindmap.conversation,
                 selectedNodes: values.selectedNodes
             }
             const response = await axios.post(url, requestAIConversation);
