@@ -172,6 +172,23 @@ export class MindmapController {
       });
     }
   };
+
+  suggestNoteMindmap: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    const { mindmapId, orgId } = req.params;
+    const bearerToken = getBearerToken(req);
+    const user = await getUserInfo(bearerToken);
+    if (!isUserInOrg(user, orgId)) {
+      res.status(statusCode.UNAUTHORIZED).json({
+        status: statusCode.UNAUTHORIZED,
+        message: "User is not in the organization",
+      });
+      return;
+    }
+  };
+
   //*
   updateMindmap: RequestHandler = async (
     req: Request,
@@ -188,12 +205,15 @@ export class MindmapController {
         });
         return;
       }
-      const serviceRespons = await mindmapService.updateMindmap(mindmapId, req.body);
-      console.log('res ', serviceRespons);
+      const serviceRespons = await mindmapService.updateMindmap(
+        mindmapId,
+        req.body
+      );
+      console.log("res ", serviceRespons);
       res.status(statusCode.OK).json({
         status: statusCode.OK,
         message: "Update mindmap successfully",
-        data: serviceRespons
+        data: serviceRespons,
       });
     } catch (error) {
       res.status(statusCode.INTERNAL_SERVER_ERROR).json({
@@ -201,7 +221,7 @@ export class MindmapController {
         message: (error as Error).message,
       });
     }
-  }
+  };
 
   editMindmapByAI: RequestHandler = async (
     req: Request,
@@ -232,14 +252,19 @@ export class MindmapController {
       }
 
       const orgInfo = getOrgFromUser(user, orgId);
-      const llmPackage = LLM_OrgSubscription[orgInfo?.subscription as OrgSubscription];      
+      const llmPackage =
+        LLM_OrgSubscription[orgInfo?.subscription as OrgSubscription];
 
-      const serviceResponse = await mindmapService.editMindmapByAI(values, llmPackage, mindmap);
+      const serviceResponse = await mindmapService.editMindmapByAI(
+        values,
+        llmPackage,
+        mindmap
+      );
 
       res.status(statusCode.OK).json({
         status: statusCode.OK,
         message: "Edit mindmap by AI successfully",
-        data: serviceResponse
+        data: serviceResponse,
       });
     } catch (error) {
       res.status(statusCode.INTERNAL_SERVER_ERROR).json({
@@ -247,7 +272,7 @@ export class MindmapController {
         message: (error as Error).message,
       });
     }
-  }
+  };
 }
 
 export const mindmapController = new MindmapController();
