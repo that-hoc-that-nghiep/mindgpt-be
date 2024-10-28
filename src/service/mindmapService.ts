@@ -4,6 +4,7 @@ import {
   LLMModel,
   MindmapType,
   OrgSubscription,
+  QuestionNumber,
 } from "@/constant";
 import axios from "axios";
 import { MindmapRepository } from "@/respository/mindmapRepository";
@@ -25,7 +26,10 @@ import {
   SuggestNoteAiHubRequest,
   SuggestNoteRequestBody,
 } from "./types.ts/suggestNoteMindmap.types";
-import { GenQuizAiHubRequest } from "./types.ts/genQuizMindmap.types";
+import {
+  GenQuizAiHubRequest,
+  GenQuizRequestBody,
+} from "./types.ts/genQuizMindmap.types";
 
 interface MindmapNode {
   label: string;
@@ -324,6 +328,36 @@ export class MindmapService {
       const errorMessage = `Error suggest note mindmap: ${
         (e as Error).message
       }`;
+      console.log(errorMessage);
+      throw new Error(errorMessage);
+    }
+  }
+
+  async genQuizMindmap(
+    mindmapId: string,
+    values: GenQuizRequestBody,
+    llmPackage: string
+  ) {
+    try {
+      const mindmap = await this.mindmapRepository.getMindmapById(mindmapId);
+      const mermaid = convertJsonToMermaid(mindmap.nodes, mindmap.edges);
+      const requestAiGenQuizL: GenQuizAiHubRequest = {
+        llm: llmPackage as LLMModel,
+        type: mindmap.type as MindmapType,
+        prompt: mindmap.prompt,
+        document: {
+          type: mindmap.document.type,
+          url: mindmap.document.url,
+        },
+        documentsId: mindmap.documentsId,
+        questionNumber: QuestionNumber,
+        selectedNodes: values.selectedNodes,
+        mermaid: mermaid,
+      };
+      const newQuizs = await handleCallApiGenQuiz(requestAiGenQuizL);
+      return newQuizs;
+    } catch (e) {
+      const errorMessage = `Error gen quiz mindmap: ${(e as Error).message}`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }

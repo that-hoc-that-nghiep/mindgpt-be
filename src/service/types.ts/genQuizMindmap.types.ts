@@ -3,6 +3,9 @@ export interface SelectdNode {
   id: string;
   name: string;
 }
+export interface GenQuizRequestBody {
+  selectedNodes: SelectdNode[];
+}
 export interface GenQuizAiHubRequest {
   llm: LLMModel;
   type: MindmapType;
