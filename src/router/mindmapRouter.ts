@@ -7,6 +7,7 @@ import {
   MindmapGetByIdSchemaDoc,
   MindmapGetSchemaDoc,
   MindmapSchemaDoc,
+  SuggestNoteDoc,
 } from "@/model/mindmapModel";
 import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
 import { create } from "domain";
@@ -320,12 +321,12 @@ mindmapRegistry.registerPath({
           properties: {
             prompt: {
               type: "string",
-              example: ""
+              example: "",
             },
             selectedNodes: {
               type: "string",
-              example: "[]"
-            }
+              example: "[]",
+            },
           },
           required: ["prompt", "selectedNodes"],
         },
@@ -333,7 +334,6 @@ mindmapRegistry.registerPath({
     },
   },
   responses: createApiResponse(MindmapSchemaDoc, "Success"),
-
 });
 
 mindmapRouter.put("/:orgId/:mindmapId/edit", mindmapController.editMindmapByAI);
@@ -459,3 +459,45 @@ mindmapRegistry.registerPath({
 });
 
 mindmapRouter.patch("/:orgId/:mindmapId", mindmapController.updateMindmap);
+
+mindmapRegistry.registerPath({
+  method: "post",
+  path: "/mindmap/:orgId/:mindmapId/suggest-note",
+  tags: ["Mindmap"],
+  requestBody: {
+    required: true,
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          properties: {
+            selectedNode: {
+              properties: {
+                id: {
+                  type: "string",
+                  description: "Node ID",
+                  example: "B",
+                },
+                name: {
+                  type: "string",
+                  description: "Node label",
+                  example: "Tieu su",
+                },
+              },
+              required: ["id", "label"],
+            },
+            documentsId: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+              example: [],
+            },
+          },
+        },
+      },
+    },
+  },
+  responses: createApiResponse(SuggestNoteDoc, "Success"),
+});
+mindmapRouter.post("/:orgId/:mindmapId/suggest-note");
