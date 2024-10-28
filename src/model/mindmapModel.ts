@@ -69,7 +69,17 @@ export const MindmapGetByIdSchemaDoc = z.object({
 });
 
 export const SuggestNoteDoc = z.string();
-
+export const QuizDoc = z.array(
+  z.object({
+    question: z.string(), 
+    answers: z.array(
+      z.object({
+        answer: z.string(), 
+        isCorrect: z.boolean(), 
+      })
+    ),
+  })
+);
 export const MindmapSchemaDoc = z.object({
   _id: z.string(),
   title: z.string(),

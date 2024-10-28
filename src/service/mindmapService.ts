@@ -4,6 +4,7 @@ import {
   LLMModel,
   MindmapType,
   OrgSubscription,
+  QuestionNumber,
 } from "@/constant";
 import axios from "axios";
 import { MindmapRepository } from "@/respository/mindmapRepository";
@@ -25,6 +26,10 @@ import {
   SuggestNoteAiHubRequest,
   SuggestNoteRequestBody,
 } from "./types.ts/suggestNoteMindmap.types";
+import {
+  GenQuizAiHubRequest,
+  GenQuizRequestBody,
+} from "./types.ts/genQuizMindmap.types";
 
 interface MindmapNode {
   label: string;
@@ -47,6 +52,7 @@ const baseUrl = config.API_AI_HUB;
 const url = `${baseUrl}/mindmap/create`;
 const url_editAI = `${baseUrl}/mindmap/edit`;
 const url_suggestNote = `${baseUrl}/mindmap/suggest-note`;
+const url_genQuiz = `${baseUrl}/mindmap/gen-quiz`;
 export class MindmapService {
   private mindmapRepository: MindmapRepository;
   constructor(repository: MindmapRepository = new MindmapRepository()) {
@@ -327,6 +333,36 @@ export class MindmapService {
     }
   }
 
+  async genQuizMindmap(
+    mindmapId: string,
+    values: GenQuizRequestBody,
+    llmPackage: string
+  ) {
+    try {
+      const mindmap = await this.mindmapRepository.getMindmapById(mindmapId);
+      const mermaid = convertJsonToMermaid(mindmap.nodes, mindmap.edges);
+      const requestAiGenQuizL: GenQuizAiHubRequest = {
+        llm: llmPackage as LLMModel,
+        type: mindmap.type as MindmapType,
+        prompt: mindmap.prompt,
+        document: {
+          type: mindmap.document.type,
+          url: mindmap.document.url,
+        },
+        documentsId: mindmap.documentsId,
+        questionNumber: QuestionNumber,
+        selectedNodes: values.selectedNodes,
+        mermaid: mermaid,
+      };
+      const newQuizs = await handleCallApiGenQuiz(requestAiGenQuizL);
+      return newQuizs;
+    } catch (e) {
+      const errorMessage = `Error gen quiz mindmap: ${(e as Error).message}`;
+      console.log(errorMessage);
+      throw new Error(errorMessage);
+    }
+  }
+
   async updateMindmap(mindmapId: string, values: UpdateRequest) {
     try {
       const mindmap = await this.mindmapRepository.updateMindmap(
@@ -501,6 +537,24 @@ export const handleCallApiSuggestNote = async (
   } catch (error) {
     console.log(error);
     throw new Error("Error call api aihub suggest note");
+  }
+};
+export const handleCallApiGenQuiz = async (
+  requestBody: GenQuizAiHubRequest
+) => {
+  try {
+    const response = await axios.post(url_genQuiz, requestBody, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      validateStatus: function (status: number) {
+        return status >= 200 && status < 300;
+      },
+    });
+    return response.data.data;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error call api aihub gen quiz");
   }
 };
 export const mindmapService = new MindmapService();

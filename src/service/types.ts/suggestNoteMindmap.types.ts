@@ -6,15 +6,11 @@ export interface SuggestNoteRequestBody {
     name: string;
   };
 }
-export interface MindmapParamRequest {
-  mindmapId: string;
-  orgId: string;
-}
 export interface SuggestNoteAiHubRequest {
   llm: LLMModel;
   type: MindmapType;
-  prompt?: string;
-  document?: {
+  prompt: string;
+  document: {
     type: string;
     url: string;
   };
