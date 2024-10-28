@@ -36,9 +36,7 @@ export const getBearerToken = (req: Request) => {
 
 export const getUserInfo = async (token: string) => {
   try {
-    console.log(token)
     const baseUrl = process.env.API_AUTH!;
-    console.log(baseUrl)
     const { data } = await axios.get<User>(`${baseUrl}/verify/${token}`);
     return data;
   } catch (error) {

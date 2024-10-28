@@ -16,6 +16,8 @@ import {
 import { validateMindmapRequest } from "@/common/validateRequest/validateMindmapRequest";
 import { unlink } from "fs/promises";
 import { validateGetAllMindmapsRequest } from "@/common/validateRequest/validateGetMinmaprequest";
+import { validateSuggestNoteRequest } from "@/common/validateRequest/validateSuggestNoteRequest";
+import { SuggestNoteRequestBody } from "@/service/types.ts/suggestNoteMindmap.types";
 
 export class MindmapController {
   createMindmap: RequestHandler = async (
@@ -172,6 +174,44 @@ export class MindmapController {
       });
     }
   };
+
+  suggestNoteMindmap: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const { mindmapId, orgId } = req.params;
+      const values = validateSuggestNoteRequest(req);
+      const bearerToken = getBearerToken(req);
+      const user = await getUserInfo(bearerToken);
+      if (!isUserInOrg(user, orgId)) {
+        res.status(statusCode.UNAUTHORIZED).json({
+          status: statusCode.UNAUTHORIZED,
+          message: "User is not in the organization",
+        });
+        return;
+      }
+      const orgInfo = getOrgFromUser(user, orgId);
+      const llmPackage =
+        LLM_OrgSubscription[orgInfo?.subscription as OrgSubscription];
+      const newNote = await mindmapService.suggestNoteMindmap(
+        mindmapId,
+        values,
+        llmPackage
+      );
+      res.status(statusCode.OK).json({
+        status: statusCode.OK,
+        message: "Suggest note mindmap successfully",
+        data: newNote,
+      });
+    } catch (error) {
+      res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+        status: statusCode.INTERNAL_SERVER_ERROR,
+        message: (error as Error).message,
+      });
+    }
+  };
+
   //*
   updateMindmap: RequestHandler = async (
     req: Request,
@@ -188,12 +228,15 @@ export class MindmapController {
         });
         return;
       }
-      const serviceRespons = await mindmapService.updateMindmap(mindmapId, req.body);
-      console.log('res ', serviceRespons);
+      const serviceRespons = await mindmapService.updateMindmap(
+        mindmapId,
+        req.body
+      );
+      console.log("res ", serviceRespons);
       res.status(statusCode.OK).json({
         status: statusCode.OK,
         message: "Update mindmap successfully",
-        data: serviceRespons
+        data: serviceRespons,
       });
     } catch (error) {
       res.status(statusCode.INTERNAL_SERVER_ERROR).json({
@@ -201,7 +244,7 @@ export class MindmapController {
         message: (error as Error).message,
       });
     }
-  }
+  };
 
   editMindmapByAI: RequestHandler = async (
     req: Request,
@@ -221,6 +264,7 @@ export class MindmapController {
       }
       const values = req.body;
       const mindmap = await mindmapService.getMindmapById(mindmapId);
+      console.log(mindmap);
 
       if (!mindmap) {
         res.status(statusCode.NOT_FOUND).json({
@@ -231,14 +275,19 @@ export class MindmapController {
       }
 
       const orgInfo = getOrgFromUser(user, orgId);
-      const llmPackage = LLM_OrgSubscription[orgInfo?.subscription as OrgSubscription];      
+      const llmPackage =
+        LLM_OrgSubscription[orgInfo?.subscription as OrgSubscription];
 
-      const serviceResponse = await mindmapService.editMindmapByAI(values, llmPackage, mindmap);
+      const serviceResponse = await mindmapService.editMindmapByAI(
+        values,
+        llmPackage,
+        mindmap
+      );
 
       res.status(statusCode.OK).json({
         status: statusCode.OK,
         message: "Edit mindmap by AI successfully",
-        data: serviceResponse
+        data: serviceResponse,
       });
     } catch (error) {
       res.status(statusCode.INTERNAL_SERVER_ERROR).json({
@@ -246,7 +295,7 @@ export class MindmapController {
         message: (error as Error).message,
       });
     }
-  }
+  };
 }
 
 export const mindmapController = new MindmapController();

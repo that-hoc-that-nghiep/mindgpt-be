@@ -21,6 +21,10 @@ import {
 import { Organization } from "./authService";
 import { unlink } from "fs/promises";
 import { convertJsonToMermaid } from "@/common/parseData/convertJsonToMermaid";
+import {
+  SuggestNoteAiHubRequest,
+  SuggestNoteRequestBody,
+} from "./types.ts/suggestNoteMindmap.types";
 
 interface MindmapNode {
   label: string;
@@ -42,6 +46,7 @@ const supabase = createClient(
 const baseUrl = config.API_AI_HUB;
 const url = `${baseUrl}/mindmap/create`;
 const url_editAI = `${baseUrl}/mindmap/edit`;
+const url_suggestNote = `${baseUrl}/mindmap/suggest-note`;
 export class MindmapService {
   private mindmapRepository: MindmapRepository;
   constructor(repository: MindmapRepository = new MindmapRepository()) {
@@ -137,8 +142,9 @@ export class MindmapService {
           }
       }
     } catch (error) {
-      const errorMessage = `Error creating new mindmap: ${(error as Error).message
-        }`;
+      const errorMessage = `Error creating new mindmap: ${
+        (error as Error).message
+      }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -217,8 +223,9 @@ export class MindmapService {
         }
       } while (count < countLimit);
     } catch (error) {
-      const errorMessage = `Error creating new mindmap by upload file: ${(error as Error).message
-        }`;
+      const errorMessage = `Error creating new mindmap by upload file: ${
+        (error as Error).message
+      }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -239,8 +246,9 @@ export class MindmapService {
       );
       return mindmaps;
     } catch (error) {
-      const errorMessage = `Error getting all mindmaps: ${(error as Error).message
-        }`;
+      const errorMessage = `Error getting all mindmaps: ${
+        (error as Error).message
+      }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -285,12 +293,51 @@ export class MindmapService {
     }
   }
 
+  async suggestNoteMindmap(
+    mindmapId: string,
+    values: SuggestNoteRequestBody,
+    llmPackage: string
+  ) {
+    try {
+      const mindmap = await this.mindmapRepository.getMindmapById(mindmapId);
+      const mermaid = convertJsonToMermaid(mindmap.nodes, mindmap.edges);
+      const requestAISuggetNote: SuggestNoteAiHubRequest = {
+        llm: llmPackage as LLMModel,
+        type: mindmap.type as MindmapType,
+        prompt: mindmap.prompt,
+        document: {
+          type: mindmap.document.type,
+          url: mindmap.document.url,
+        },
+        documentsId: mindmap.documentsId,
+        selectedNode: {
+          id: values.selectedNode.id,
+          name: values.selectedNode.name,
+        },
+        mermaid: mermaid,
+      };
+      const newNote = await handleCallApiSuggestNote(requestAISuggetNote);
+      return newNote;
+    } catch (e) {
+      const errorMessage = `Error suggest note mindmap: ${
+        (e as Error).message
+      }`;
+      console.log(errorMessage);
+      throw new Error(errorMessage);
+    }
+  }
+
   async updateMindmap(mindmapId: string, values: UpdateRequest) {
     try {
-      const mindmap = await this.mindmapRepository.updateMindmap(mindmapId, values);
+      const mindmap = await this.mindmapRepository.updateMindmap(
+        mindmapId,
+        values
+      );
       return mindmap;
     } catch (error) {
-      const errorMessage = `Error update mindmap: ${(error as Error).message} 3`;
+      const errorMessage = `Error update mindmap: ${
+        (error as Error).message
+      } 3`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -305,20 +352,24 @@ export class MindmapService {
         documentsId: mindmap.documentsId,
         mermaid: mermaid,
         prompt: values.prompt,
-        selectedNodes: values.selectedNodes
-      }
+        selectedNodes: values.selectedNodes,
+      };
+
       const response = await axios.put(url_editAI, requestAIConversation);
 
       const newMindmapData = response.data.data;
 
       const newJsonMindmap = await parseMermaidToJson(
-        newMindmapData,
-        "",
+        newMindmapData.mindmap,
+        mindmap.prompt,
         mindmap.type,
         mindmap.documentsId,
-        values.orgId,
+        mindmap.orgId,
         mindmap.document
       );
+      if (newJsonMindmap) {
+        newJsonMindmap.conversation = mindmap.conversation;
+      }
 
       newJsonMindmap?.nodes.forEach((newNode: any) => {
         const matchingOldNode = mindmap.nodes.find(
@@ -334,13 +385,14 @@ export class MindmapService {
         }
       });
 
-
-      return response.data.data;
+      return {
+        newMindmap: newJsonMindmap,
+        message: newMindmapData.message,
+      };
     } catch (error) {
       throw new Error("Error editing mindmap");
     }
-  };
-
+  }
 }
 
 export const validatePackageOrg = async (
@@ -430,7 +482,25 @@ export const handleCallApiDeleteDocumentsId = (documentsId: string[]) => {
         return status >= 200 && status < 300;
       },
     })
-    .catch(() => { });
+    .catch(() => {});
 };
 
+export const handleCallApiSuggestNote = async (
+  requestBody: SuggestNoteAiHubRequest
+) => {
+  try {
+    const response = await axios.post(url_suggestNote, requestBody, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      validateStatus: function (status: number) {
+        return status >= 200 && status < 300;
+      },
+    });
+    return response.data.data;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error call api aihub suggest note");
+  }
+};
 export const mindmapService = new MindmapService();

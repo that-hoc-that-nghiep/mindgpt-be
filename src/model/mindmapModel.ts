@@ -68,6 +68,8 @@ export const MindmapGetByIdSchemaDoc = z.object({
   conversation: z.array(MessageConversationDoc),
 });
 
+export const SuggestNoteDoc = z.string();
+
 export const MindmapSchemaDoc = z.object({
   _id: z.string(),
   title: z.string(),
@@ -85,19 +87,22 @@ export const MindmapSchemaDoc = z.object({
   conversation: z.array(MessageConversationDoc),
 });
 
-const ConversationSchema = new mongoose.Schema({
-  role: {
-    type: String,
-    enum: ["user", "ai"],
+const ConversationSchema = new mongoose.Schema(
+  {
+    role: {
+      type: String,
+      enum: ["user", "ai"],
+    },
+    content: {
+      type: String,
+    },
+    created_at: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  content: {
-    type: String,
-  },
-  created_at: {
-    type: Date,
-    default: Date.now,
-  },
-}, { versionKey: false });
+  { versionKey: false }
+);
 
 const NodesSchema = new mongoose.Schema({
   id: {
