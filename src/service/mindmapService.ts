@@ -20,6 +20,20 @@ import {
 } from "./types.ts/createMindmap.types";
 import { Organization } from "./authService";
 import { unlink } from "fs/promises";
+import { convertJsonToMermaid } from "@/common/parseData/convertJsonToMermaid";
+
+interface MindmapNode {
+  label: string;
+  pos?: string;
+  text_color?: string;
+  bg_color?: string;
+  size?: string;
+  note?: string;
+}
+
+interface Mindmap {
+  nodes: MindmapNode[];
+}
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -27,6 +41,7 @@ const supabase = createClient(
 );
 const baseUrl = config.API_AI_HUB;
 const url = `${baseUrl}/mindmap/create`;
+const url_editAI = `${baseUrl}/mindmap/edit`;
 export class MindmapService {
   private mindmapRepository: MindmapRepository;
   constructor(repository: MindmapRepository = new MindmapRepository()) {
@@ -122,9 +137,8 @@ export class MindmapService {
           }
       }
     } catch (error) {
-      const errorMessage = `Error creating new mindmap: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error creating new mindmap: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -203,9 +217,8 @@ export class MindmapService {
         }
       } while (count < countLimit);
     } catch (error) {
-      const errorMessage = `Error creating new mindmap by upload file: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error creating new mindmap by upload file: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -226,9 +239,8 @@ export class MindmapService {
       );
       return mindmaps;
     } catch (error) {
-      const errorMessage = `Error getting all mindmaps: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error getting all mindmaps: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -272,8 +284,8 @@ export class MindmapService {
       throw new Error(errorMessage);
     }
   }
-  
-   async updateMindmap(mindmapId: string, values: UpdateRequest) {
+
+  async updateMindmap(mindmapId: string, values: UpdateRequest) {
     try {
       const mindmap = await this.mindmapRepository.updateMindmap(mindmapId, values);
       return mindmap;
@@ -283,8 +295,53 @@ export class MindmapService {
       throw new Error(errorMessage);
     }
   }
-}
+  async editMindmapByAI(values: any, llmPackage: any, mindmap: any) {
+    try {
+      const mermaid = convertJsonToMermaid(mindmap.nodes, mindmap.edges);
+      const requestAIConversation = {
+        llm: llmPackage,
+        type: mindmap.type,
+        document: mindmap.document,
+        documentsId: mindmap.documentsId,
+        mermaid: mermaid,
+        prompt: values.prompt,
+        selectedNodes: values.selectedNodes
+      }
+      const response = await axios.put(url_editAI, requestAIConversation);
 
+      const newMindmapData = response.data.data;
+
+      const newJsonMindmap = await parseMermaidToJson(
+        newMindmapData,
+        "",
+        mindmap.type,
+        mindmap.documentsId,
+        values.orgId,
+        mindmap.document
+      );
+
+      newJsonMindmap?.nodes.forEach((newNode: any) => {
+        const matchingOldNode = mindmap.nodes.find(
+          (oldNode: any) => oldNode.label === newNode.label
+        );
+
+        if (matchingOldNode) {
+          newNode.pos = matchingOldNode.pos;
+          newNode.text_color = matchingOldNode.text_color;
+          newNode.bg_color = matchingOldNode.bg_color;
+          newNode.size = matchingOldNode.size;
+          newNode.note = matchingOldNode.note;
+        }
+      });
+
+
+      return response.data.data;
+    } catch (error) {
+      throw new Error("Error editing mindmap");
+    }
+  };
+
+}
 
 export const validatePackageOrg = async (
   file: Express.Multer.File,
@@ -373,7 +430,7 @@ export const handleCallApiDeleteDocumentsId = (documentsId: string[]) => {
         return status >= 200 && status < 300;
       },
     })
-    .catch(() => {});
+    .catch(() => { });
 };
 
 export const mindmapService = new MindmapService();

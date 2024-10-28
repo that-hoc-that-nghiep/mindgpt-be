@@ -1,4 +1,5 @@
 import { DocumentTypeRequest, LLMModel, MindmapType } from "@/constant";
+import{Node, Edge} from "@/service/types.ts/getMindmapById";
 
 export interface CreativeRequestAI {
   llm: LLMModel;
@@ -26,21 +27,29 @@ export interface CreateRequest {
   child: number;
   orgId: string;
 }
+
+// export interface UpdateRequest {
+//   nodes: [
+//     {
+//       id: string;
+//       label: string;
+//       level: number;
+//       pos: { x: number; y: number };
+//       text_color: string;
+//       bg_color: string;
+//       size: { width: number; height: number };
+//       note: string;
+//       type_update: string;
+//       referNode: string; //id of referenced node
+//     }
+//   ];
+// }
+
 export interface UpdateRequest {
-  nodes: [
-    {
-      id: string;
-      label: string;
-      level: number;
-      pos: { x: number; y: number };
-      text_color: string;
-      bg_color: string;
-      size: { width: number; height: number };
-      note: string;
-      type_update: string;
-      referNode: string; //id of referenced node
-    }
-  ];
+    title: string;
+    nodes: Node[];
+    edges: Edge[];
+    thumbnail: string;
 }
 
 export interface SummaryRequestAI {
