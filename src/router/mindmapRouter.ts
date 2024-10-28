@@ -10,6 +10,7 @@ import {
 } from "@/model/mindmapModel";
 import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
 import { create } from "domain";
+import { min } from "moment";
 
 const bodyCreateExampleByCreative = {
   type: "creative",
@@ -305,3 +306,34 @@ mindmapRegistry.registerPath({
 });
 
 mindmapRouter.put("/:orgId/:mindmapId", mindmapController.updateMindmap);
+
+mindmapRegistry.registerPath({
+  method: "put",
+  description: "Edit Mindmap by AI",
+  path: "/mindmap/:orgId/:mindmapId/edit",
+  tags: ["Mindmap"],
+  requestBody: {
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          properties: {
+            prompt: {
+              type: "string",
+              example: ""
+            },
+            selectedNodes: {
+              type: "string",
+              example: "[]"
+            }
+          },
+          required: ["prompt", "selectedNodes"],
+        },
+      },
+    },
+  },
+  responses: createApiResponse(MindmapSchemaDoc, "Success"),
+
+});
+
+mindmapRouter.put("/:orgId/:mindmapId/edit", mindmapController.editMindmapByAI);
