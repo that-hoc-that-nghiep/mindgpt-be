@@ -337,3 +337,125 @@ mindmapRegistry.registerPath({
 });
 
 mindmapRouter.put("/:orgId/:mindmapId/edit", mindmapController.editMindmapByAI);
+
+mindmapRegistry.registerPath({
+  method: "patch",
+  description: "Update Mindmap by ID",
+  path: "/mindmap/:orgId/:mindmapId",
+  tags: ["Mindmap"],
+  requestBody: {
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          properties: {
+            title: {
+              type: "string",
+              description: "title of mindmap",
+              example: "new title",
+            },
+            nodes: {
+              type: "array",
+              description: "Nodes that client want to update",
+              items: {
+                type: "object",
+                properties: {
+                  id: {
+                    type: "string",
+                    description: "Node ID",
+                    example: "B",
+                  },
+                  label: {
+                    type: "string",
+                    description: "Node label",
+                    example: "new Node",
+                  },
+                  level: {
+                    type: "number",
+                    description: "Node level",
+                    example: 5,
+                  },
+                  text_color: {
+                    type: "string",
+                    description: "color of text",
+                    example: "#000",
+                  },
+                  bd_color: {
+                    type: "string",
+                    description: "color of background",
+                    example: "#fff",
+                  },
+                  size: {
+                    type: "object",
+                    properties: {
+                      width: {
+                        type: "number",
+                        description: "width of node",
+                        example: 120,
+                      },
+                      height: {
+                        type: "number",
+                        description: "height of node",
+                        example: 80,
+                      },
+                    },
+                  },
+                  note: {
+                    type: "string",
+                    description: "Node note",
+                    example: "note",
+                  },
+                },
+              },
+            },
+            edges: {
+              type: "array",
+              description: "Edges that client want to update",
+              items: {
+                type: "object",
+                properties: {
+                  id: {
+                    type: "string",
+                    description: "Edge ID",
+                    example: "A --> B",
+                  },
+                  from: {
+                    type: "string",
+                    description: "Node ID from",
+                    example: "A",
+                  },
+                  to: {
+                    type: "string",
+                    description: "Node ID to",
+                    example: "B",
+                  },
+                  name: {
+                    type: "string",
+                    description: "Edge name",
+                    example: "A --> B",
+                  },
+                },
+              },
+            },
+            thumbnail: {
+              type: "string",
+              description: "Thumbnail of updated mindmap",
+              example: "",
+            },
+          },
+          required: ["nodes", "edges"],
+        },
+        example: `{
+          "title": "new title",
+          "thumbnail": "",
+          "nodes": [{"id":"A","label":"Học Nodejs","level":0,"pos":{"x":0,"y":0},"text_color":"#000","bg_color":"#fff","size":{"width":120,"height":80},"note":""},
+                    {"id":"B","label":"Tài liệu","level":1,"pos":{"x":0,"y":0},"text_color":"#000","bg_color":"#fff","size":{"width":120,"height":80},"note":""}],
+          "edges": [{"id":"A --> B","from":"A","to":"B","name":"A --> B"}]
+        }`,
+      },
+    },
+  },
+  responses: createApiResponse(MindmapSchemaDoc, "Success"),
+});
+
+mindmapRouter.patch("/:orgId/:mindmapId", mindmapController.updateMindmap);
