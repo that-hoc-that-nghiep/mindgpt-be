@@ -13,8 +13,8 @@ export interface MindmapParamRequest {
 export interface SuggestNoteAiHubRequest {
   llm: LLMModel;
   type: MindmapType;
-  prompt?: string;
-  document?: {
+  prompt: string;
+  document: {
     type: string;
     url: string;
   };

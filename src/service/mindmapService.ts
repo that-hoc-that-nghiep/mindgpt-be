@@ -25,6 +25,7 @@ import {
   SuggestNoteAiHubRequest,
   SuggestNoteRequestBody,
 } from "./types.ts/suggestNoteMindmap.types";
+import { GenQuizAiHubRequest } from "./types.ts/genQuizMindmap.types";
 
 interface MindmapNode {
   label: string;
@@ -503,4 +504,5 @@ export const handleCallApiSuggestNote = async (
     throw new Error("Error call api aihub suggest note");
   }
 };
+
 export const mindmapService = new MindmapService();
