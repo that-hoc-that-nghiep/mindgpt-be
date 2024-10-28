@@ -221,6 +221,7 @@ export class MindmapController {
       }
       const values = req.body;
       const mindmap = await mindmapService.getMindmapById(mindmapId);
+      console.log(mindmap);
 
       if (!mindmap) {
         res.status(statusCode.NOT_FOUND).json({

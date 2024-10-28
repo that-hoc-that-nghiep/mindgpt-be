@@ -307,18 +307,22 @@ export class MindmapService {
         prompt: values.prompt,
         selectedNodes: values.selectedNodes
       }
+
       const response = await axios.put(url_editAI, requestAIConversation);
 
       const newMindmapData = response.data.data;
 
       const newJsonMindmap = await parseMermaidToJson(
-        newMindmapData,
-        "",
+        newMindmapData.mindmap,
+        mindmap.prompt,
         mindmap.type,
         mindmap.documentsId,
-        values.orgId,
+        mindmap.orgId,
         mindmap.document
       );
+      if (newJsonMindmap) {
+        newJsonMindmap.conversation = mindmap.conversation;
+      }
 
       newJsonMindmap?.nodes.forEach((newNode: any) => {
         const matchingOldNode = mindmap.nodes.find(
@@ -334,8 +338,10 @@ export class MindmapService {
         }
       });
 
-
-      return response.data.data;
+      return {
+        newMindmap: newJsonMindmap,
+        message: newMindmapData.message
+      };
     } catch (error) {
       throw new Error("Error editing mindmap");
     }
