@@ -5,6 +5,7 @@ export interface SelectdNode {
 }
 export interface GenQuizRequestBody {
   selectedNodes: SelectdNode[];
+  questionNumber: number;
 }
 export interface GenQuizAiHubRequest {
   llm: LLMModel;
