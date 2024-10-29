@@ -92,8 +92,9 @@ export class MindmapRepository {
         .exec();
       return populatedMindmap;
     } catch (error) {
-      const errorMessage = `Error creating new mindmap in mongodb: ${(error as Error).message
-        }`;
+      const errorMessage = `Error creating new mindmap in mongodb: ${
+        (error as Error).message
+      }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -142,7 +143,7 @@ export class MindmapRepository {
           select: "-_id -__v",
         })
         .exec();
-      console.log(mindmap)
+
       if (mindmap === null) {
         throw new Error(`Mindmap with ID ${mindmapId} not found.`);
       }
@@ -288,29 +289,39 @@ export class MindmapRepository {
       // console.log("update mindmap", values);
       const updateNodes = [];
       for (const node of values.nodes) {
-        const updatedNode = await NodesModel.findOneAndUpdate(
-          { id: node.id, _id: { $in: mindmap.nodes } },
-          node,
-          { new: true }
-        );
-        if (!updatedNode) {
-          throw new Error(`Node with ID ${node.id} not found.`);
+        if (node.id.startsWith("temp")) {
+          const newNode = await new NodesModel(node).save();
+          updateNodes.push(newNode._id);
         } else {
-          updateNodes.push(updatedNode._id);
+          const updatedNode = await NodesModel.findOneAndUpdate(
+            { id: node.id, _id: { $in: mindmap.nodes } },
+            node,
+            { new: true }
+          );
+          if (!updatedNode) {
+            throw new Error(`Node with ID ${node.id} not found.`);
+          } else {
+            updateNodes.push(updatedNode._id);
+          }
         }
       }
 
       const updateEdges = [];
       for (const edge of values.edges) {
-        const updatedEdge = await EdgesModel.findOneAndUpdate(
-          { id: edge.id },
-          edge,
-          { new: true }
-        );
-        if (!updatedEdge) {
-          throw new Error(`Edge with ID ${edge.id} not found.`);
+        if (edge.id.includes("temp")) {
+          const newEdge = await new EdgesModel(edge).save();
+          updateEdges.push(newEdge._id);
         } else {
-          updateEdges.push(updatedEdge._id);
+          const updatedEdge = await EdgesModel.findOneAndUpdate(
+            { id: edge.id },
+            edge,
+            { new: true }
+          );
+          if (!updatedEdge) {
+            throw new Error(`Edge with ID ${edge.id} not found.`);
+          } else {
+            updateEdges.push(updatedEdge._id);
+          }
         }
       }
 
@@ -330,11 +341,16 @@ export class MindmapRepository {
       console.log("updatedMindmap", updatedMindmap);
       return updatedMindmap;
     } catch (error) {
-      throw new Error(`Mindmap with ID ${mindmapId} not found 1.`);
+      throw new Error(`Mindmap with ID ${mindmapId} update failed.`);
     }
   };
 
-  editMindmapByAI = async (prompt: string, messageAI: string, mindmapId: string, newJsonMindmap: any) => {
+  editMindmapByAI = async (
+    prompt: string,
+    messageAI: string,
+    mindmapId: string,
+    newJsonMindmap: any
+  ) => {
     try {
       //Save conversation to DB
       const conversationRepository = new ConversationRepository();
@@ -342,7 +358,7 @@ export class MindmapRepository {
         mindmapId,
         prompt,
         messageAI
-      )
+      );
 
       //Save mindmap to DB
       const mindmap = await MindmapModel.findById(mindmapId);
@@ -390,11 +406,10 @@ export class MindmapRepository {
       );
 
       return updatedMindmap;
-
     } catch (error) {
       throw new Error(`Mindmap with ID ${mindmapId} not found 1.`);
     }
-  }
-};
+  };
+}
 
 export const mindmapRepository = new MindmapRepository();
