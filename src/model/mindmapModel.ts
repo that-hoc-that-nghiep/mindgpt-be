@@ -71,11 +71,11 @@ export const MindmapGetByIdSchemaDoc = z.object({
 export const SuggestNoteDoc = z.string();
 export const QuizDoc = z.array(
   z.object({
-    question: z.string(), 
+    question: z.string(),
     answers: z.array(
       z.object({
-        answer: z.string(), 
-        isCorrect: z.boolean(), 
+        answer: z.string(),
+        isCorrect: z.boolean(),
       })
     ),
   })
@@ -238,6 +238,10 @@ const MindmapSchema = new mongoose.Schema({
       ref: "Conversation",
     },
   ],
+  note: {
+    type: String,
+    default: "",
+  },
 });
 export const ConversationModel = mongoose.model(
   "Conversation",

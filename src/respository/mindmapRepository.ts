@@ -92,8 +92,9 @@ export class MindmapRepository {
         .exec();
       return populatedMindmap;
     } catch (error) {
-      const errorMessage = `Error creating new mindmap in mongodb: ${(error as Error).message
-        }`;
+      const errorMessage = `Error creating new mindmap in mongodb: ${
+        (error as Error).message
+      }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -346,7 +347,12 @@ export class MindmapRepository {
     }
   };
 
-  editMindmapByAI = async (prompt: string, messageAI: string, mindmapId: string, newJsonMindmap: any) => {
+  editMindmapByAI = async (
+    prompt: string,
+    messageAI: string,
+    mindmapId: string,
+    newJsonMindmap: any
+  ) => {
     try {
       //Save conversation to DB
       const conversationRepository = new ConversationRepository();
@@ -354,7 +360,7 @@ export class MindmapRepository {
         mindmapId,
         prompt,
         messageAI
-      )
+      );
 
       //Save mindmap to DB
       const mindmap = await MindmapModel.findById(mindmapId);
@@ -402,11 +408,10 @@ export class MindmapRepository {
       );
 
       return updatedMindmap;
-
     } catch (error) {
       throw new Error(`Mindmap with ID ${mindmapId} not found 1.`);
     }
-  }
-};
+  };
+}
 
 export const mindmapRepository = new MindmapRepository();
