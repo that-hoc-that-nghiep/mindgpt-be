@@ -381,13 +381,14 @@ export class MindmapService {
   async editMindmapByAI(values: any, llmPackage: any, mindmap: any) {
     try {
       const mermaid = convertJsonToMermaid(mindmap.nodes, mindmap.edges);
+      const prompt = values.prompt
       const requestAIConversation = {
         llm: llmPackage,
         type: mindmap.type,
         document: mindmap.document,
         documentsId: mindmap.documentsId,
         mermaid: mermaid,
-        prompt: values.prompt,
+        prompt: prompt,
         selectedNodes: values.selectedNodes,
       };
 
@@ -423,6 +424,8 @@ export class MindmapService {
 
       //Update mindmap in database
       const updatedMindmap = await this.mindmapRepository.editMindmapByAI(
+        prompt,
+        newMindmapData.message,
         mindmap._id,
         newJsonMindmap
       );
