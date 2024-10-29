@@ -421,6 +421,12 @@ export class MindmapService {
         }
       });
 
+      //Update mindmap in database
+      const updatedMindmap = await this.mindmapRepository.editMindmapByAI(
+        mindmap._id,
+        newJsonMindmap
+      );
+
       return {
         newMindmap: newJsonMindmap,
         message: newMindmapData.message,

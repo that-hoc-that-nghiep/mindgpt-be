@@ -19,6 +19,7 @@ import { validateGetAllMindmapsRequest } from "@/common/validateRequest/validate
 import { validateSuggestNoteRequest } from "@/common/validateRequest/validateSuggestNoteRequest";
 import { SuggestNoteRequestBody } from "@/service/types.ts/suggestNoteMindmap.types";
 import { validateGenQuizRequest } from "@/common/validateRequest/validateGenQuizRequest";
+import { mindmapRepository } from "@/respository/mindmapRepository";
 
 export class MindmapController {
   createMindmap: RequestHandler = async (
@@ -301,8 +302,9 @@ export class MindmapController {
         return;
       }
       const values = req.body;
-      const mindmap = await mindmapService.getMindmapById(mindmapId);
-      console.log(mindmap);
+      const mindmap = await mindmapRepository.getMindmapById(mindmapId);
+      console.log("mindmapID" ,mindmapId);
+      console.log("mindmap ", mindmap.conversation);
 
       if (!mindmap) {
         res.status(statusCode.NOT_FOUND).json({
