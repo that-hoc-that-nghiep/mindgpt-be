@@ -6,7 +6,7 @@ import {
   NodesModel,
 } from "@/model/mindmapModel";
 import { UpdateRequest } from "@/service/types.ts/createMindmap.types";
-import { captureRejectionSymbol } from "events";
+import { ConversationRepository } from "./conversationRepository";
 const mongoose = require("mongoose");
 export interface NodeMindmap {
   id: string;
@@ -142,7 +142,7 @@ export class MindmapRepository {
           select: "-_id -__v",
         })
         .exec();
-        console.log(mindmap)
+      console.log(mindmap)
       if (mindmap === null) {
         throw new Error(`Mindmap with ID ${mindmapId} not found.`);
       }
@@ -334,8 +334,17 @@ export class MindmapRepository {
     }
   };
 
-  editMindmapByAI = async (mindmapId: string, newJsonMindmap: any) => {
+  editMindmapByAI = async (prompt: string, messageAI: string, mindmapId: string, newJsonMindmap: any) => {
     try {
+      //Save conversation to DB
+      const conversationRepository = new ConversationRepository();
+      const conversation = await conversationRepository.createNewConversation(
+        mindmapId,
+        prompt,
+        messageAI
+      )
+
+      //Save mindmap to DB
       const mindmap = await MindmapModel.findById(mindmapId);
       if (!mindmap) {
         throw new Error(`Mindmap with ID ${mindmapId} not found. 2`);
