@@ -46,7 +46,8 @@ export const MindmapGetSchemaDoc = z.object({
     edges: z.array(z.string()), // Array of edge IDs
     documentsId: z.array(z.string()), // Array of document IDs
     orgId: z.string(), // Organization ID
-    conversation: z.array(z.string()), // Array of conversation IDs
+    conversation: z.array(z.string()),
+    note: z.string(), // Array of conversation IDs
   }),
   total: z.number().int().min(0), // Total number of mindmaps
 });
@@ -66,16 +67,17 @@ export const MindmapGetByIdSchemaDoc = z.object({
   documentsId: z.array(z.string()), // Array of document IDs
   orgId: z.string(), // Organization ID
   conversation: z.array(MessageConversationDoc),
+  note: z.string(),
 });
 
 export const SuggestNoteDoc = z.string();
 export const QuizDoc = z.array(
   z.object({
-    question: z.string(), 
+    question: z.string(),
     answers: z.array(
       z.object({
-        answer: z.string(), 
-        isCorrect: z.boolean(), 
+        answer: z.string(),
+        isCorrect: z.boolean(),
       })
     ),
   })
@@ -95,6 +97,7 @@ export const MindmapSchemaDoc = z.object({
   documentIds: z.string().array(),
   orgId: z.string(),
   conversation: z.array(MessageConversationDoc),
+  note: z.string(),
 });
 
 const ConversationSchema = new mongoose.Schema(
@@ -238,6 +241,10 @@ const MindmapSchema = new mongoose.Schema({
       ref: "Conversation",
     },
   ],
+  note: {
+    type: String,
+    default: "",
+  },
 });
 export const ConversationModel = mongoose.model(
   "Conversation",
