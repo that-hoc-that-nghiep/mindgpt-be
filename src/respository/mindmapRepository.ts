@@ -144,8 +144,6 @@ export class MindmapRepository {
         })
         .exec();
 
-      console.log(mindmap);
-
       if (mindmap === null) {
         throw new Error(`Mindmap with ID ${mindmapId} not found.`);
       }
