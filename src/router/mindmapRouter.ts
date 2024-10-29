@@ -526,6 +526,11 @@ mindmapRegistry.registerPath({
                 required: ["id", "label"],
               },
             },
+            questionNumber: {
+              type: "number",
+              description: "Number of questions",
+              example: 5,
+            },
           },
         },
       },
