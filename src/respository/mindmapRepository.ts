@@ -192,144 +192,36 @@ export class MindmapRepository {
     }
   };
 
-  //   try {
-  //     const mindmap = await MindmapModel.findById(mindmapId);
-  //     if (!mindmap) {
-  //       throw new Error(`Mindmap with ID ${mindmapId} not found. 2`);
-  //     }
-  //     for (const node of values.nodes) {
-  //       switch (node.type_update) {
-  //         case MindmapUpdateType.CREATE: {
-  //           const { type_update, referNode, ...saveNode } = node;
-  //           // console.log('create node', saveNode);
-  //           const referNodeData = await NodesModel.findOne({
-  //             id: referNode,
-  //             _id: { $in: mindmap.nodes },
-  //           });
-  //           if (referNodeData) {
-  //             saveNode.level = referNodeData.level + 1;
-  //           } else {
-  //             throw new Error("Refer node not found");
-  //           }
-  //           const newNode = await new NodesModel(saveNode).save();
-  //           await MindmapModel.findByIdAndUpdate(mindmapId, {
-  //             $push: { nodes: newNode._id },
-  //           });
-  //           if (referNode != "") {
-  //             const newEdge = await new EdgesModel({
-  //               id: `${referNode} --> ${saveNode.id}`,
-  //               from: referNode,
-  //               to: saveNode.id,
-  //               name: `${referNode} --> ${saveNode.id}`,
-  //             }).save();
-  //             // console.log("New edge saved:", newEdge);
-  //             await MindmapModel.findByIdAndUpdate(mindmapId, {
-  //               $push: { edges: newEdge._id },
-  //             });
-  //           }
-  //           break;
-  //         }
-  //         case MindmapUpdateType.EDIT: {
-  //           const finededNode = await NodesModel.findOne({
-  //             id: node.id,
-  //             _id: { $in: mindmap.nodes },
-  //           }).exec();
-  //           // console.log('edit node', finededNode);
-  //           if (!finededNode) {
-  //             throw new Error(`Node with ID ${node.id} not found.`);
-  //           } else {
-  //             const { type_update, referNode, ...saveNode } = node;
-  //             // console.log(saveNode);
-  //             const updatedNode = await NodesModel.findOneAndUpdate(
-  //               { _id: finededNode._id },
-  //               saveNode
-  //             );
-  //             if (!updatedNode) {
-  //               throw new Error(`Node with ID ${node.id} not found.`);
-  //             }
-  //             break;
-  //           }
-  //         }
-
-  //         case MindmapUpdateType.DELETE: {
-  //           const finededNode = await NodesModel.findOne({
-  //             id: node.id,
-  //             _id: { $in: mindmap.nodes },
-  //           }).exec();
-  //           // console.log('delete node', finededNode);
-  //           if (!finededNode) {
-  //             throw new Error(`Node with ID ${node.id} not found.`);
-  //           } else {
-  //             mindmap.nodes = mindmap.nodes.filter(
-  //               (n) => !n.equals(finededNode._id)
-  //             );
-  //             await MindmapModel.findByIdAndUpdate(
-  //               mindmapId,
-  //               { nodes: mindmap.nodes },
-  //               { new: true, runValidators: true }
-  //             );
-  //             console.log(finededNode);
-  //           }
-  //         }
-  //       }
-  //     }
-  //     // console.log('update ',mindmap);
-  //     return mindmap;
-  //   } catch (error) {
-  //     throw new Error(`Mindmap with ID ${mindmapId} not found 1.`);
-  //   }
-  // };
-
   updateMindmap = async (mindmapId: string, values: UpdateRequest) => {
     try {
       const mindmap = await MindmapModel.findById(mindmapId);
       if (!mindmap) {
         throw new Error(`Mindmap with ID ${mindmapId} not found. 2`);
       }
-      // console.log("update mindmap", values);
-      const updateNodes = [];
+
+      const nodeIds = mindmap.nodes.map((node) => node._id);
+      await NodesModel.deleteMany({ _id: { $in: nodeIds } });
+
+      const edgeIds = mindmap.edges.map((edge) => edge._id);
+      await EdgesModel.deleteMany({ _id: { $in: edgeIds } });
+
+      const savedNodes = [];
       for (const node of values.nodes) {
-        if (node.id.startsWith("temp")) {
-          const newNode = await new NodesModel(node).save();
-          updateNodes.push(newNode._id);
-        } else {
-          const updatedNode = await NodesModel.findOneAndUpdate(
-            { id: node.id, _id: { $in: mindmap.nodes } },
-            node,
-            { new: true }
-          );
-          if (!updatedNode) {
-            throw new Error(`Node with ID ${node.id} not found.`);
-          } else {
-            updateNodes.push(updatedNode._id);
-          }
-        }
+        const resNode = await new NodesModel(node).save();
+        savedNodes.push(resNode._id);
       }
 
-      const updateEdges = [];
+      const savedEdges = [];
       for (const edge of values.edges) {
-        if (edge.id.includes("temp")) {
-          const newEdge = await new EdgesModel(edge).save();
-          updateEdges.push(newEdge._id);
-        } else {
-          const updatedEdge = await EdgesModel.findOneAndUpdate(
-            { id: edge.id },
-            edge,
-            { new: true }
-          );
-          if (!updatedEdge) {
-            throw new Error(`Edge with ID ${edge.id} not found.`);
-          } else {
-            updateEdges.push(updatedEdge._id);
-          }
-        }
+        const resEdge = await new EdgesModel(edge).save();
+        savedEdges.push(resEdge._id);
       }
 
       const updatedMindmap = await MindmapModel.findByIdAndUpdate(
         mindmapId,
         {
-          nodes: updateNodes,
-          edges: updateEdges,
+          nodes: savedNodes,
+          edges: savedEdges,
           title: values.title,
           thumbnail: values.thumbnail,
         },
@@ -338,7 +230,6 @@ export class MindmapRepository {
           runValidators: true,
         }
       );
-      console.log("updatedMindmap", updatedMindmap);
       return updatedMindmap;
     } catch (error) {
       throw new Error(`Mindmap with ID ${mindmapId} update failed.`);
