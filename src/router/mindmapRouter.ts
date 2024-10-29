@@ -2,15 +2,14 @@ import express from "express";
 import { mindmapController } from "@/controller/mindmapController";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
-import z from "zod";
 import {
   MindmapGetByIdSchemaDoc,
   MindmapGetSchemaDoc,
   MindmapSchemaDoc,
+  QuizDoc,
+  SuggestNoteDoc,
 } from "@/model/mindmapModel";
 import { uploadFileMiddleware } from "@/common/uploadFileHander/upload";
-import { create } from "domain";
-import { min } from "moment";
 
 const bodyCreateExampleByCreative = {
   type: "creative",
@@ -320,12 +319,12 @@ mindmapRegistry.registerPath({
           properties: {
             prompt: {
               type: "string",
-              example: ""
+              example: "",
             },
             selectedNodes: {
               type: "string",
-              example: "[]"
-            }
+              example: "[]",
+            },
           },
           required: ["prompt", "selectedNodes"],
         },
@@ -333,7 +332,6 @@ mindmapRegistry.registerPath({
     },
   },
   responses: createApiResponse(MindmapSchemaDoc, "Success"),
-
 });
 
 mindmapRouter.put("/:orgId/:mindmapId/edit", mindmapController.editMindmapByAI);
@@ -459,3 +457,83 @@ mindmapRegistry.registerPath({
 });
 
 mindmapRouter.patch("/:orgId/:mindmapId", mindmapController.updateMindmap);
+
+mindmapRegistry.registerPath({
+  method: "post",
+  path: "/mindmap/:orgId/:mindmapId/suggest-note",
+  tags: ["Mindmap"],
+  requestBody: {
+    required: true,
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          properties: {
+            selectedNode: {
+              properties: {
+                id: {
+                  type: "string",
+                  description: "Node ID",
+                  example: "B",
+                },
+                name: {
+                  type: "string",
+                  description: "Node label",
+                  example: "Tieu su",
+                },
+              },
+              required: ["id", "label"],
+            },
+          },
+        },
+      },
+    },
+  },
+  responses: createApiResponse(SuggestNoteDoc, "Success"),
+});
+mindmapRouter.post(
+  "/:orgId/:mindmapId/suggest-note",
+  mindmapController.suggestNoteMindmap
+);
+
+mindmapRegistry.registerPath({
+  method: "post",
+  path: "/mindmap/:orgId/:mindmapId/gen-quiz",
+  tags: ["Mindmap"],
+  requestBody: {
+    required: true,
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          properties: {
+            selectedNodes: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: {
+                    type: "string",
+                    description: "Node ID",
+                    example: "B",
+                  },
+                  name: {
+                    type: "string",
+                    description: "Node label",
+                    example: "Tieu su",
+                  },
+                },
+                required: ["id", "label"],
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  responses: createApiResponse(QuizDoc, "Success"),
+});
+mindmapRouter.post(
+  "/:orgId/:mindmapId/gen-quiz",
+  mindmapController.genQuizMindmap
+);

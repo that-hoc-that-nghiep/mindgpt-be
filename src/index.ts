@@ -23,7 +23,7 @@ app.use(
   cors({
     origin: ["http://localhost:5173", /^https:\/\/.*\.mind-gpt\.online$/],
     allowedHeaders: ["Content-Type", "Authorization", "X-Custom-Header"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   })
 );
 
@@ -38,10 +38,6 @@ app.get("/", async (req: Request, res: Response) => {
 app.use("/mindmap", mindmapRouter);
 app.use("/org", orgRouter);
 app.use("/conversation", conversationRouter);
-
-app.use(async (req: Request, res: Response, next: NextFunction) => {
-  next(httpErrors.BadRequest("Bad request"));
-});
 
 app.use(async (req: Request, res: Response, next: NextFunction) => {
   next(httpErrors.BadRequest("Bad request"));

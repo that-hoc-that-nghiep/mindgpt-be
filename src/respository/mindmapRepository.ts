@@ -6,7 +6,7 @@ import {
   NodesModel,
 } from "@/model/mindmapModel";
 import { UpdateRequest } from "@/service/types.ts/createMindmap.types";
-import { captureRejectionSymbol } from "events";
+import { ConversationRepository } from "./conversationRepository";
 const mongoose = require("mongoose");
 export interface NodeMindmap {
   id: string;
@@ -92,9 +92,8 @@ export class MindmapRepository {
         .exec();
       return populatedMindmap;
     } catch (error) {
-      const errorMessage = `Error creating new mindmap in mongodb: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error creating new mindmap in mongodb: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -143,7 +142,9 @@ export class MindmapRepository {
           select: "-_id -__v",
         })
         .exec();
+
       console.log(mindmap);
+
       if (mindmap === null) {
         throw new Error(`Mindmap with ID ${mindmapId} not found.`);
       }
@@ -396,6 +397,68 @@ export class MindmapRepository {
       throw new Error(`Mindmap with ID ${mindmapId} not found 1.`);
     }
   };
-}
+
+  editMindmapByAI = async (prompt: string, messageAI: string, mindmapId: string, newJsonMindmap: any) => {
+    try {
+      //Save conversation to DB
+      const conversationRepository = new ConversationRepository();
+      const conversation = await conversationRepository.createNewConversation(
+        mindmapId,
+        prompt,
+        messageAI
+      )
+
+      //Save mindmap to DB
+      const mindmap = await MindmapModel.findById(mindmapId);
+      if (!mindmap) {
+        throw new Error(`Mindmap with ID ${mindmapId} not found. 2`);
+      }
+      const updateNodes = [];
+      for (const node of newJsonMindmap.nodes) {
+        const updatedNode = await NodesModel.findOneAndUpdate(
+          { id: node.id, _id: { $in: mindmap.nodes } },
+          node,
+          { new: true, upsert: true }
+        );
+        if (!updatedNode) {
+          throw new Error(`Node with ID ${node.id} not found.`);
+        } else {
+          updateNodes.push(updatedNode._id);
+        }
+      }
+
+      const updateEdges = [];
+      for (const edge of newJsonMindmap.edges) {
+        const updatedEdge = await EdgesModel.findOneAndUpdate(
+          { id: edge.id },
+          edge,
+          { new: true, upsert: true }
+        );
+        if (!updatedEdge) {
+          throw new Error(`Edge with ID ${edge.id} not found.`);
+        } else {
+          updateEdges.push(updatedEdge._id);
+        }
+      }
+
+      const updatedMindmap = await MindmapModel.findByIdAndUpdate(
+        mindmapId,
+        {
+          nodes: updateNodes,
+          edges: updateEdges,
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      return updatedMindmap;
+
+    } catch (error) {
+      throw new Error(`Mindmap with ID ${mindmapId} not found 1.`);
+    }
+  }
+};
 
 export const mindmapRepository = new MindmapRepository();

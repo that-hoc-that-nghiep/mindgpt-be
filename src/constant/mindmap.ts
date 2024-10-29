@@ -62,3 +62,5 @@ export const sizeMindmap = {
   depth: 4,
   child: 3,
 };
+
+export const QuestionNumber: number = 5;
