@@ -350,7 +350,7 @@ export class MindmapService {
           url: mindmap.document.url,
         },
         documentsId: mindmap.documentsId,
-        questionNumber: QuestionNumber,
+        questionNumber: values.questionNumber,
         selectedNodes: values.selectedNodes,
         mermaid: mermaid,
       };
@@ -381,7 +381,7 @@ export class MindmapService {
   async editMindmapByAI(values: any, llmPackage: any, mindmap: any) {
     try {
       const mermaid = convertJsonToMermaid(mindmap.nodes, mindmap.edges);
-      const prompt = values.prompt
+      const prompt = values.prompt;
       const requestAIConversation = {
         llm: llmPackage,
         type: mindmap.type,
