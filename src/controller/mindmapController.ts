@@ -303,8 +303,6 @@ export class MindmapController {
       }
       const values = req.body;
       const mindmap = await mindmapRepository.getMindmapById(mindmapId);
-      console.log("mindmapID" ,mindmapId);
-      console.log("mindmap ", mindmap.conversation);
 
       if (!mindmap) {
         res.status(statusCode.NOT_FOUND).json({
