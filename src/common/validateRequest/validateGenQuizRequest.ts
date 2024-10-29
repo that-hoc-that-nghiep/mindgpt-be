@@ -1,7 +1,14 @@
 import { Request } from "express";
 
 export function validateGenQuizRequest(req: Request) {
-  const { selectedNodes } = req.body;
+  const { selectedNodes, questionNumber } = req.body;
+
+  if (selectedNodes === undefined) {
+    throw new Error("selectedNodes is required.");
+  }
+  if (questionNumber === undefined) {
+    throw new Error("questionNumber is required.");
+  }
 
   if (!Array.isArray(selectedNodes)) {
     throw new Error("selectedNodes is required and must be an array.");
@@ -34,6 +41,12 @@ export function validateGenQuizRequest(req: Request) {
       );
     }
   });
-
+  if (
+    typeof questionNumber !== "number" ||
+    questionNumber < 1 ||
+    questionNumber > 10
+  ) {
+    throw new Error("questionNumber must be a number between 1 and 10.");
+  }
   return { selectedNodes };
 }
