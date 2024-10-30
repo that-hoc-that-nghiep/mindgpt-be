@@ -209,7 +209,6 @@ export class MindmapRepository {
         const resNode = await new NodesModel(node).save();
         savedNodes.push(resNode._id);
       }
-
       const savedEdges = [];
       for (const edge of values.edges) {
         const resEdge = await new EdgesModel(edge).save();
@@ -230,7 +229,9 @@ export class MindmapRepository {
           runValidators: true,
         }
       );
+
       return updatedMindmap;
+
     } catch (error) {
       throw new Error(`Mindmap with ID ${mindmapId} update failed.`);
     }

@@ -265,12 +265,27 @@ mindmapRegistry.registerPath({
                     description: "Node level",
                     example: 5,
                   },
+                  pos: {
+                    type: "object",
+                    properties: {
+                      x: {
+                        type: "number",
+                        description: "x position of node",
+                        example: 0,
+                      },
+                      y: {
+                        type: "number",
+                        description: "y position of node",
+                        example: 0,
+                      },
+                    },
+                  },
                   text_color: {
                     type: "string",
                     description: "color of text",
                     example: "#000",
                   },
-                  bd_color: {
+                  bg_color: {
                     type: "string",
                     description: "color of background",
                     example: "#fff",

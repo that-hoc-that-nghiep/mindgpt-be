@@ -251,7 +251,6 @@ export class MindmapController {
     }
   };
 
-  //*
   updateMindmap: RequestHandler = async (
     req: Request,
     res: Response
