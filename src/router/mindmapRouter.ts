@@ -293,7 +293,7 @@ mindmapRegistry.registerPath({
                   note: {
                     type: "string",
                     description: "Node note",
-                    example: "note",
+                    example: "note of node",
                   },
                 },
               },
@@ -332,16 +332,14 @@ mindmapRegistry.registerPath({
               description: "Thumbnail of updated mindmap",
               example: "",
             },
+            note: {
+              type: "string",
+              description: "Note of mindmap",
+              example: "note of mindmap",
+            },
           },
           required: ["nodes", "edges"],
         },
-        example: `{
-          "title": "new title",
-          "thumbnail": "",
-          "nodes": [{"id":"A","label":"Học Nodejs","level":0,"pos":{"x":0,"y":0},"text_color":"#000","bg_color":"#fff","size":{"width":120,"height":80},"note":""},
-                    {"id":"B","label":"Tài liệu","level":1,"pos":{"x":0,"y":0},"text_color":"#000","bg_color":"#fff","size":{"width":120,"height":80},"note":""}],
-          "edges": [{"id":"A --> B","from":"A","to":"B","name":"A --> B"}]
-        }`,
       },
     },
   },
