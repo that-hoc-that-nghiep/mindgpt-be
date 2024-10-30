@@ -92,9 +92,8 @@ export class MindmapRepository {
         .exec();
       return populatedMindmap;
     } catch (error) {
-      const errorMessage = `Error creating new mindmap in mongodb: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error creating new mindmap in mongodb: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -224,6 +223,7 @@ export class MindmapRepository {
           edges: savedEdges,
           title: values.title,
           thumbnail: values.thumbnail,
+          note: values.note,
         },
         {
           new: true,
@@ -256,39 +256,30 @@ export class MindmapRepository {
       if (!mindmap) {
         throw new Error(`Mindmap with ID ${mindmapId} not found. 2`);
       }
-      const updateNodes = [];
+      //Delete old nodes and edges
+      const nodeIds = mindmap.nodes.map((node) => node._id);
+      await NodesModel.deleteMany({ _id: { $in: nodeIds } });
+
+      const edgeIds = mindmap.edges.map((edge) => edge._id);
+      await EdgesModel.deleteMany({ _id: { $in: edgeIds } })
+
+      const savedNodes = [];
       for (const node of newJsonMindmap.nodes) {
-        const updatedNode = await NodesModel.findOneAndUpdate(
-          { id: node.id, _id: { $in: mindmap.nodes } },
-          node,
-          { new: true, upsert: true }
-        );
-        if (!updatedNode) {
-          throw new Error(`Node with ID ${node.id} not found.`);
-        } else {
-          updateNodes.push(updatedNode._id);
-        }
+        const resNode = await new NodesModel(node).save();
+        savedNodes.push(resNode._id);
       }
 
-      const updateEdges = [];
+      const savedEdges = [];
       for (const edge of newJsonMindmap.edges) {
-        const updatedEdge = await EdgesModel.findOneAndUpdate(
-          { id: edge.id },
-          edge,
-          { new: true, upsert: true }
-        );
-        if (!updatedEdge) {
-          throw new Error(`Edge with ID ${edge.id} not found.`);
-        } else {
-          updateEdges.push(updatedEdge._id);
-        }
+        const resEdge = await new EdgesModel(edge).save();
+        savedEdges.push(resEdge._id);
       }
 
       const updatedMindmap = await MindmapModel.findByIdAndUpdate(
         mindmapId,
         {
-          nodes: updateNodes,
-          edges: updateEdges,
+          nodes: savedNodes,
+          edges: savedEdges,
         },
         {
           new: true,

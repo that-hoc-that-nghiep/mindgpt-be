@@ -148,9 +148,8 @@ export class MindmapService {
           }
       }
     } catch (error) {
-      const errorMessage = `Error creating new mindmap: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error creating new mindmap: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -229,9 +228,8 @@ export class MindmapService {
         }
       } while (count < countLimit);
     } catch (error) {
-      const errorMessage = `Error creating new mindmap by upload file: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error creating new mindmap by upload file: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -252,9 +250,8 @@ export class MindmapService {
       );
       return mindmaps;
     } catch (error) {
-      const errorMessage = `Error getting all mindmaps: ${
-        (error as Error).message
-      }`;
+      const errorMessage = `Error getting all mindmaps: ${(error as Error).message
+        }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -325,9 +322,8 @@ export class MindmapService {
       const newNote = await handleCallApiSuggestNote(requestAISuggetNote);
       return newNote;
     } catch (e) {
-      const errorMessage = `Error suggest note mindmap: ${
-        (e as Error).message
-      }`;
+      const errorMessage = `Error suggest note mindmap: ${(e as Error).message
+        }`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -371,9 +367,7 @@ export class MindmapService {
       );
       return mindmap;
     } catch (error) {
-      const errorMessage = `Error update mindmap: ${
-        (error as Error).message
-      } 3`;
+      const errorMessage = `Error update mindmap: ${(error as Error).message}`;
       console.log(errorMessage);
       throw new Error(errorMessage);
     }
@@ -527,7 +521,7 @@ export const handleCallApiDeleteDocumentsId = (documentsId: string[]) => {
         return status >= 200 && status < 300;
       },
     })
-    .catch(() => {});
+    .catch(() => { });
 };
 
 export const handleCallApiSuggestNote = async (

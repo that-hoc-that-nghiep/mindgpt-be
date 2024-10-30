@@ -258,6 +258,7 @@ export class MindmapController {
   ): Promise<void> => {
     try {
       const { mindmapId, orgId } = req.params;
+      const values = req.body;
       const bearerToken = getBearerToken(req);
       const user = await getUserInfo(bearerToken);
       if (!isUserInOrg(user, orgId)) {
@@ -267,7 +268,7 @@ export class MindmapController {
         });
         return;
       }
-      const serviceRespons = await mindmapService.updateMindmap(mindmapId, req.body);
+      const serviceRespons = await mindmapService.updateMindmap(mindmapId, values);
       res.status(statusCode.OK).json({
         status: statusCode.OK,
         message: "Update mindmap successfully",
