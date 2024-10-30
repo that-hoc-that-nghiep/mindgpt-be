@@ -1,5 +1,5 @@
 import { DocumentTypeRequest, LLMModel, MindmapType } from "@/constant";
-import{Node, Edge} from "@/service/types.ts/getMindmapById";
+import { Node, Edge } from "@/service/types.ts/getMindmapById";
 
 export interface CreativeRequestAI {
   llm: LLMModel;
@@ -29,10 +29,11 @@ export interface CreateRequest {
 }
 
 export interface UpdateRequest {
-    title: string;
-    nodes: Node[];
-    edges: Edge[];
-    thumbnail: string;
+  title: string;
+  nodes: Node[];
+  edges: Edge[];
+  thumbnail: string;
+  note: string
 }
 
 export interface SummaryRequestAI {
