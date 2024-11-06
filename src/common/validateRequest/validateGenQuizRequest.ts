@@ -44,9 +44,9 @@ export function validateGenQuizRequest(req: Request) {
   if (
     typeof questionNumber !== "number" ||
     questionNumber < 1 ||
-    questionNumber > 10
+    questionNumber > 100
   ) {
-    throw new Error("questionNumber must be a number between 1 and 10.");
+    throw new Error("questionNumber must be a number between 1 and 100.");
   }
   return { selectedNodes, questionNumber };
 }
