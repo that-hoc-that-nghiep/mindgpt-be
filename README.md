@@ -1,4 +1,4 @@
-# Setup Instructions for MindGPT Backend
+# MindGPT Backend
 
 ### Step 1: Clone the repository
 Clone the project repository to your local machine using the following command:
